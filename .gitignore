@@ -1,0 +1,9 @@
+TypeScript语言笔记/装饰器/compiled
+
+# 根目录下的js/html/ts文件作为练习编码用, 不提交
+/*.js
+/*.html
+/*.ts
+
+# Mac系统下的资源文件
+**/.DS_Store

@@ -177,7 +177,7 @@ export const FSHADER = `
         // 入射向量, 即视线向量, 单位化
         vec3 in = normalize(v_position - vec3(0.0, 0.0, 10.0));
         // 计算反射向量
-        vec3 out = reflect(from, normal);
+        vec3 out = reflect(in, normal);
         // 采样
         gl_FragColor = textureCube(u_sampler, normalize(out));
     }

@@ -34,12 +34,12 @@ gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
   - ...
 + 注意第1个参数, 这是前文描述的`方向`参数
 ```TypeScript
-gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image1);
-gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
-gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image3);
-gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image4);
-gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image5);
-gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image6);
+gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image1);
+gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
+gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image3);
+gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image4);
+gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image5);
+gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image6);
 ```
 ***
 **TIPS:** 图片的资源加载在之前的笔记已经讲述过了, 以`HTMLImageElement`为例, 需要等待其`onload()`方法

@@ -47,7 +47,7 @@ Number(objectValue3); // 42
 Number(objectValue4); // 42
 Number(""); // 0
 Number([]); // 0
-Number(['123']); // NaN
+Number(['123']); // 123
 ```
 
 #### ToBoolean转换为布尔值的规则

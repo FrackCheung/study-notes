@@ -57,11 +57,11 @@
 
   // 设置数据
   setAttributeUniformDataCube();
-  render(gl, cubeProgram);
+  render(gl, program);
 
   // 设置数据
   setAttributeUniformDataSphere();
-  render(gl, sphereProgram);
+  render(gl, program);
   ```
 ***
 **TIPS:** 其实两种方法没啥区别, 不管是一个program还是多个program, 都要多次绘制, 并且绘制前都需要分别传入各自的数据, 唯一需要注意的是`gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)`的使用, 一定要写对地方, 不要后一个绘制的时候, 清除了前一个

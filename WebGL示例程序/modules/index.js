@@ -33,7 +33,7 @@ const program = WebGLService.getProgram(gl, V_SOURCE, F_SOURCE);
 const cubePoints = GeometryService.getCubePoints(0.4);
 const cubeNormals = GeometryService.getCubeNormals();
 
-const spherePoints = GeometryService.getSpherePoints(0.5);
+const spherePoints = GeometryService.getSpherePoints(0.5, 20, 40);
 const sphereNormals = spherePoints;
 
 let degree = 0;

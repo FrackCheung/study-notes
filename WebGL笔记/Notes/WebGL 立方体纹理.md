@@ -59,19 +59,19 @@ export const VSHADER = `
     uniform mat4 u_model;
     uniform mat4 u_view;
     uniform mat4 u_projection;
-    varying vec3 v_normal;
+    varying vec3 v_position;
     void main() {
         gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
-        v_normal = normalize(a_position);
+        v_position = normalize(a_position);
     }
 `;
 
 export const FSHADER = `
     precision mediump float;
-    varying vec3 v_normal;
+    varying vec3 v_position;
     uniform samplerCube u_sampler;
     void main() {
-        gl_FragColor = textureCube(u_sampler, normalize(v_normal));
+        gl_FragColor = textureCube(u_sampler, normalize(v_position));
     }
 `;
 ```

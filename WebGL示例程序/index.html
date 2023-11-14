@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/icon.png">
     <title>WebGL示例程序</title>
     <style>
+        html, body {
+            min-width: 1366px;
+            min-height: 768px;
+            overflow: hidden;
+        }
+
         a {
             display: inline-block;
             margin: 20px;
@@ -28,15 +35,16 @@
     </style>
 </head>
 <body>
-    <a>立方体纹理-反射</a>
-    <a>立方体纹理-地球仪</a>
-    <a>立方体纹理-天空盒</a>
-    <a>立方体纹理-融合</a>
+    <a href="./pages/reflect.html">立方体纹理-反射</a>
+    <a href="./pages/global.html">立方体纹理-地球仪</a>
+    <a href="./pages/sky-box.html">立方体纹理-天空盒</a>
+    <a href="./pages/sky-box-reflect.html">立方体纹理-天空盒 & 反射</a>
     <a>纹理-视频纹理</a>
     <a>纹理-渲染到纹理</a>
     <a>灯光-平行光</a>
     <a>灯光-点光源</a>
     <a>灯光-聚光灯</a>
+    <a>文件处理-OBJ文件</a>
     <canvas class="cs"></canvas>
     <script type="module" src="./modules/index.js"></script>
 </body>

@@ -76,7 +76,10 @@ export class MatrixService {
          * @param {number[]} matrix 
          * @returns {number}
          */
-        const calcMatrix3Rank = m3 => m3[0] * m3[4] * m3[8] + m3[1] * m3[5] * m3[6] + m3[2] * m3[3] * m3[7];
+        const calcMatrix3Rank = m3 => (
+            m3[0] * m3[4] * m3[8] + m3[1] * m3[5] * m3[6] + m3[2] * m3[3] * m3[7]
+            - m3[2] * m3[4] * m3[6] - m3[1] * m3[3] * m3[8] - m3[0] * m3[5] * m3[7]
+        );
 
         /**
          * 四阶矩阵的秩, 使用代数余子式计算, 展开第一行
@@ -267,12 +270,6 @@ export class MatrixService {
         const qzn = pxn * ryn - pyn * rxn;
 
         // P, Q, R顺序对应X, Y, Z, 注意, R = -视线向量
-        const temp = [
-            pxn, pyn, pzn, 0,
-            qxn, qyn, qzn, 0,
-            -rxn, -ryn, -rzn, 0,
-            0, 0, 0, 1
-        ];
 
         return [
             pxn, qxn, -rxn, 0,
@@ -299,7 +296,7 @@ export class MatrixService {
         return [
             1 / (aspect * tan), 0, 0, 0,
             0, 1 / tan, 0, 0,
-            0, 0, -(far + near) / (far - near), -1,
+            0, 0, -1 * (far + near) / (far - near), -1,
             0, 0, -2 * near * far / (far - near), 0
         ];
     }

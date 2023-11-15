@@ -71,12 +71,12 @@ const getImage = src => new Promise(resolve => {
  * @param {WebGLRenderingContext} gl 
  */
 const resolveCubeTexture = async (gl) => {
-    const posX = await getImage('../assets/mountain/posX.png');
-    const posY = await getImage('../assets/mountain/posY.png');
-    const posZ = await getImage('../assets/mountain/posZ.png');
-    const negX = await getImage('../assets/mountain/negX.png');
-    const negY = await getImage('../assets/mountain/negY.png');
-    const negZ = await getImage('../assets/mountain/negZ.png');
+    const posX = await getImage('../assets/mountain/posX.jpg');
+    const posY = await getImage('../assets/mountain/posY.jpg');
+    const posZ = await getImage('../assets/mountain/posZ.jpg');
+    const negX = await getImage('../assets/mountain/negX.jpg');
+    const negY = await getImage('../assets/mountain/negY.jpg');
+    const negZ = await getImage('../assets/mountain/negZ.jpg');
 
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
@@ -136,7 +136,7 @@ let degree = 0;
         gl.clear(gl.DEPTH_BUFFER_BIT);
         WebGLService.setAttribute(gl, reflectProgram, 'a_Position', reflectPoints, 3);
         WebGLService.setAttribute(gl, reflectProgram, 'a_Normal', reflectNormals, 3);
-        WebGLService.setUniform(gl, reflectProgram, 'u_Model', MatrixService.rotateX(degree * 5), 'matrix4');
+        WebGLService.setUniform(gl, reflectProgram, 'u_Model', MatrixService.rotateX(degree), 'matrix4');
         WebGLService.setUniform(gl, reflectProgram, 'u_View', MatrixService.lookAt(-3 * sin, 0, 3 * cos, 0, 0, 0, 0, 1, 0), 'matrix4');
         WebGLService.setUniform(gl, reflectProgram, 'u_Projection', MatrixService.perspective(45, width / height, 0.1, 100), 'matrix4');
         WebGLService.setUniform(gl, reflectProgram, 'u_eyePos', [-3 * sin, 0, 3 * cos], 'vec3');

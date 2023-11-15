@@ -53,12 +53,12 @@ const getImage = src => new Promise(resolve => {
  * @param {WebGLRenderingContext} gl 
  */
 const resolveCubeTexture = async (gl) => {
-    const posX = await getImage('../assets/mountain/posX.png');
-    const posY = await getImage('../assets/mountain/posY.png');
-    const posZ = await getImage('../assets/mountain/posZ.png');
-    const negX = await getImage('../assets/mountain/negX.png');
-    const negY = await getImage('../assets/mountain/negY.png');
-    const negZ = await getImage('../assets/mountain/negZ.png');
+    const posX = await getImage('../assets/mountain/posX.jpg');
+    const posY = await getImage('../assets/mountain/posY.jpg');
+    const posZ = await getImage('../assets/mountain/posZ.jpg');
+    const negX = await getImage('../assets/mountain/negX.jpg');
+    const negY = await getImage('../assets/mountain/negY.jpg');
+    const negZ = await getImage('../assets/mountain/negZ.jpg');
 
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);

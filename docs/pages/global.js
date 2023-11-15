@@ -71,7 +71,7 @@ const resolveCubeTexture = async (gl) => {
 const gl = WebGLService.getContext('.cs');
 const program = WebGLService.getProgram(gl, V_SOURCE, F_SOURCE);
 
-const points = GeometryService.getSpherePoints(0.5, 50, 100);
+const points = GeometryService.getSpherePoints(0.65, 50, 100);
 
 let degree = 0;
 
@@ -90,7 +90,7 @@ let degree = 0;
         WebGLService.setAttribute(gl, program, 'a_Position', points, 3);
         WebGLService.setUniform(gl, program, 'u_Model', MatrixService.rotateY(degree), 'matrix4');
         WebGLService.setUniform(gl, program, 'u_Projection', MatrixService.perspective(45, width / height, 1, 100), 'matrix4');
-        WebGLService.setUniform(gl, program, 'u_View', MatrixService.lookAt(0, 0, 5, 0, 0, 0, 0, 1, 0), 'matrix4');
+        WebGLService.setUniform(gl, program, 'u_View', MatrixService.lookAt(0, 0, 3, 0, 0, 0, 0, 1, 0), 'matrix4');
         gl.drawArrays(gl.TRIANGLES, 0, points.length / 3);
 
         degree = (degree + 0.8) % 36000;

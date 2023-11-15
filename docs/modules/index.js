@@ -30,10 +30,10 @@ const F_SOURCE = `
 const gl = WebGLService.getContext('.cs');
 const program = WebGLService.getProgram(gl, V_SOURCE, F_SOURCE);
 
-const cubePoints = GeometryService.getCubePoints(0.4);
+const cubePoints = GeometryService.getCubePoints(0.2);
 const cubeNormals = GeometryService.getCubeNormals();
 
-const spherePoints = GeometryService.getSpherePoints(0.5, 20, 40);
+const spherePoints = GeometryService.getSpherePoints(0.2, 20, 40);
 const sphereNormals = spherePoints;
 
 let degree = 0;
@@ -49,20 +49,20 @@ const render = () => {
     WebGLService.setUniform(gl, program, 'u_View', MatrixService.lookAt(0, 0, 3, 0, 0, 0, 0, 1, 0), 'matrix4');
 
     // 立方体
-    const cubeModel = MatrixService.multiply(MatrixService.cubeRotate(degree), MatrixService.translate(-0.7, 0.4, 0.0));
+    const cubeModel = MatrixService.multiply(MatrixService.cubeRotate(degree), MatrixService.translate(-0.3, 0.0, 0.0));
     WebGLService.setAttribute(gl, program, 'a_Position', cubePoints, 3);
     WebGLService.setAttribute(gl, program, 'a_Normal', cubeNormals, 3);
     WebGLService.setUniform(gl, program, 'u_Model', cubeModel, 'matrix4');
     gl.drawArrays(gl.TRIANGLES, 0, cubePoints.length / 3);
 
     // 立方体
-    const sphereModel = MatrixService.multiply(MatrixService.rotateY(degree), MatrixService.translate(0.7, -0.4, 0.0));
+    const sphereModel = MatrixService.multiply(MatrixService.rotateY(degree), MatrixService.translate(0.3, 0.0, 0.0));
     WebGLService.setAttribute(gl, program, 'a_Position', spherePoints, 3);
     WebGLService.setAttribute(gl, program, 'a_Normal', sphereNormals, 3);
     WebGLService.setUniform(gl, program, 'u_Model', sphereModel, 'matrix4');
     gl.drawArrays(gl.LINES, 0, spherePoints.length / 3);
 
-    degree = (degree + 0.5) % 36000;
+    degree = (degree + 1.0) % 36000;
     requestAnimationFrame(render);
 };
 

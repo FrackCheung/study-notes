@@ -25,7 +25,7 @@ const F_SOURCE = `
     varying vec3 v_Normal;
     uniform samplerCube u_Sampler;
 
-    const vec3 eyePos = vec3(0.0, 0.0, 3.0);
+    const vec3 eyePos = vec3(0.0, 0.0, 5.0);
 
     void main() {
         vec3 from = normalize(v_Position - eyePos);
@@ -80,7 +80,7 @@ const resolveCubeTexture = async (gl) => {
 const gl = WebGLService.getContext('.cs');
 const program = WebGLService.getProgram(gl, V_SOURCE, F_SOURCE);
 
-const points = GeometryService.getCubePoints(0.6);
+const points = GeometryService.getCubePoints(0.5);
 const normals = GeometryService.getCubeNormals();
 
 let degree = 0;
@@ -101,10 +101,10 @@ let degree = 0;
         WebGLService.setAttribute(gl, program, 'a_Normal', normals, 3);
         WebGLService.setUniform(gl, program, 'u_Model', MatrixService.cubeRotate(degree), 'matrix4');
         WebGLService.setUniform(gl, program, 'u_Projection', MatrixService.perspective(45, width / height, 1, 100), 'matrix4');
-        WebGLService.setUniform(gl, program, 'u_View', MatrixService.lookAt(0, 0, 3, 0, 0, 0, 0, 1, 0), 'matrix4');
+        WebGLService.setUniform(gl, program, 'u_View', MatrixService.lookAt(0, 0, 5, 0, 0, 0, 0, 1, 0), 'matrix4');
         gl.drawArrays(gl.TRIANGLES, 0, points.length / 3);
 
-        degree = (degree + 0.2) % 36000;
+        degree = (degree + 0.5) % 36000;
         requestAnimationFrame(render);
     };
     render();

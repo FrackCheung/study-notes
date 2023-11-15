@@ -136,7 +136,7 @@ let degree = 0;
         gl.clear(gl.DEPTH_BUFFER_BIT);
         WebGLService.setAttribute(gl, reflectProgram, 'a_Position', reflectPoints, 3);
         WebGLService.setAttribute(gl, reflectProgram, 'a_Normal', reflectNormals, 3);
-        WebGLService.setUniform(gl, reflectProgram, 'u_Model', MatrixService.cubeRotate(degree * 5), 'matrix4');
+        WebGLService.setUniform(gl, reflectProgram, 'u_Model', MatrixService.rotateX(degree * 5), 'matrix4');
         WebGLService.setUniform(gl, reflectProgram, 'u_View', MatrixService.lookAt(-3 * sin, 0, 3 * cos, 0, 0, 0, 0, 1, 0), 'matrix4');
         WebGLService.setUniform(gl, reflectProgram, 'u_Projection', MatrixService.perspective(45, width / height, 0.1, 100), 'matrix4');
         WebGLService.setUniform(gl, reflectProgram, 'u_eyePos', [-3 * sin, 0, 3 * cos], 'vec3');

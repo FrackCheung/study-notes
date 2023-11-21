@@ -152,4 +152,43 @@ export class WebGLService {
             xhr.send();
         });
     }
+
+    /**
+     * 获取视频
+     * @param {string} src 
+     * @returns {Promise<HTMLVideoElement>}
+     */
+    static getVideo(src) {
+        return new Promise(resolve => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', src);
+            xhr.responseType = 'blob';
+            xhr.onprogress = event => {
+                const percent = event.loaded / event.total;
+                document.querySelector('.load-data').value = percent * 100;
+            };
+            xhr.onload = res => {
+                const video = document.createElement('video');
+                let playing = false;
+                let timeupdate = false;
+                video.src = window.URL.createObjectURL(res.target.response);
+                video.muted = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.addEventListener('playing', () => { playing = true });
+                video.addEventListener('timeupdate', () => { timeupdate = true });
+                video.play();
+                const interval = setInterval(() => {
+                    if (playing && timeupdate) {
+                        clearInterval(interval);
+                        document.addEventListener('click', () => {
+                            video.muted = !video.muted;
+                        });
+                        resolve(video);
+                    }
+                }, 10);
+            };
+            xhr.send();
+        });
+    }
 }

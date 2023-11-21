@@ -128,4 +128,28 @@ export class WebGLService {
         gl.canvas.height = height;
         gl.viewport(0, 0, width, height);
     }
+
+    /**
+     * 获取图片
+     * @param {string} src 
+     * @param {number} index 
+     * @returns {Promise<HTMLImageElement>}
+     */
+    static getImage(src, index) {
+        return new Promise(resolve => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', src);
+            xhr.responseType = 'blob';
+            xhr.onprogress = event => {
+                const percent = event.loaded / event.total;
+                document.querySelector('.load-data').value = (index / 6) * 100 + percent * 100 / 6;
+            };
+            xhr.onload = res => {
+                const image = new Image();
+                image.src = window.URL.createObjectURL(res.target.response);
+                image.onload = () => resolve(image)
+            };
+            xhr.send();
+        });
+    }
 }

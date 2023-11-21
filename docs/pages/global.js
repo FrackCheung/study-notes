@@ -27,30 +27,18 @@ const F_SOURCE = `
 `;
 
 /**
- * 获取图片
- * @param {string} src 
- * @returns {Promise<HTMLImageElement>}
- */
-const getImage = src => new Promise(resolve => {
-    const image = new Image();
-    image.src = src;
-    image.onload = () => {
-        resolve(image);
-    }
-});
-
-/**
  * 处理立方体纹理
  * @param {WebGLRenderingContext} gl 
  */
 const resolveCubeTexture = async (gl) => {
-    const posX = await getImage('../assets/earth/posX.png');
-    const posY = await getImage('../assets/earth/posY.png');
-    const posZ = await getImage('../assets/earth/posZ.png');
-    const negX = await getImage('../assets/earth/negX.png');
-    const negY = await getImage('../assets/earth/negY.png');
-    const negZ = await getImage('../assets/earth/negZ.png');
-
+    const posX = await WebGLService.getImage('../assets/earth/posX.png', 0);
+    const posY = await WebGLService.getImage('../assets/earth/posY.png', 1);
+    const posZ = await WebGLService.getImage('../assets/earth/posZ.png', 2);
+    const negX = await WebGLService.getImage('../assets/earth/negX.png', 3);
+    const negY = await WebGLService.getImage('../assets/earth/negY.png', 4);
+    const negZ = await WebGLService.getImage('../assets/earth/negZ.png', 5);
+    document.body.removeChild(document.querySelector('.load-data'));
+    
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     gl.activeTexture(gl.TEXTURE0);

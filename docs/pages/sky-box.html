@@ -21,10 +21,22 @@
             margin: 0;
             border: 0;
         }
+
+        .load-data {
+            display: block;
+            width: 60%;
+            height: 20px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 10px;
+            margin: auto;
+        }
     </style>
 </head>
 <body>
     <canvas class="cs"></canvas>
+    <progress value="0" max="100" class="load-data"></progress>
     <script type="module" src="./sky-box.js"></script>
 </body>
 </html>

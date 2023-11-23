@@ -73,6 +73,7 @@ const createTips = () => {
     span.style.top = '10px';
     span.style.fontSize = '20px';
     span.style.fontWeight = 'bold';
+    span.style.color = 'wheat';
     span.textContent = '点击屏幕任意位置, 可切换静音/声音';
     document.body.appendChild(span);
 };

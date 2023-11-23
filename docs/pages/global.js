@@ -12,6 +12,9 @@ const V_SOURCE = `
 
     void main() {
         gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
+        
+        // 这里不应该使用模型矩阵, 因为我们希望该顶点始终都采样到同一个像素
+        // 这样视图旋转时, 地球仪才能跟着旋转, 否则你将看到一个不会旋转的地球仪
         v_Position = a_Position;
     }
 `;
@@ -22,7 +25,10 @@ const F_SOURCE = `
     uniform samplerCube u_Sampler;
 
     void main() {
-        gl_FragColor = textureCube(u_Sampler, normalize(v_Position.xyz));
+
+        // v_Position归一化与否都不影响结果, 因为textureCube会自动归一化
+        // gl_FragColor = textureCube(u_Sampler, normalize(v_Position.xyz));
+        gl_FragColor = textureCube(u_Sampler, v_Position.xyz);
     }
 `;
 

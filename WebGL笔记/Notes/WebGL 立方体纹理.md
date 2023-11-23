@@ -20,6 +20,8 @@
   - `samplerCube`: 立方体纹理需要使用的采样器, 而不是`sampler2D`
   - `textureCube`: 立方体纹理需要使用的采样方法, 而不是`texture2D`
 + 除此之外, 和使用2D纹理的区别并不大, 需要注意的地方会在代码实现中讲解
++ **TIPS:** `textureCube`会对传入的采样坐标进行归一化, 因此不用手动归一化
++ 
   
 #### 立方体纹理的代码实现
 + 和2D纹理一样, 首先需要创建纹理, 基本代码并无差异
@@ -85,6 +87,14 @@ v_normal = normalize(a_position);
 gl_FragColor = textureCube(u_sampler, normalize(v_position));
 ```
 + 直接将顶点坐标传入, 采样器会根据坐标的范围, 确定该点应该使用哪个纹理, 并从该张纹理上抽取纹素
++ 以下代码是等价的, 上文已述, `textureCube`会对传入坐标归一化
+```GLSL
+// 手动归一化
+textureCube(u_sampler, normalize(v_position));
+
+// 自动归一化
+textureCube(u_sampler, v_position);
+```
 ***
 **TIPS1:** 立方体的边长是4, 中心点在原点, 以$(1, 1, 2)$这个点为例, 很明显$z$分量最大, 可以判断该点位于正前方的面, 因此会使用`gl.TEXTURE_CUBE_MAP_POSITIVE_Z`关联的图片  
 

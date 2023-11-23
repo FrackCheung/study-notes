@@ -17,22 +17,9 @@ const F_SOURCE = `
     varying vec4 v_position;
     uniform samplerCube u_sampler;
     void main() {
-        gl_FragColor = textureCube(u_sampler, normalize(v_position.xyz));
+        gl_FragColor = textureCube(u_sampler, v_position.xyz);
     }
 `;
-
-/**
- * 获取图片
- * @param {string} src 
- * @returns {Promise<HTMLImageElement>}
- */
-const getImage = src => new Promise(resolve => {
-    const image = new Image();
-    image.src = src;
-    image.onload = () => {
-        resolve(image);
-    }
-});
 
 /**
  * 处理立方体纹理
@@ -68,11 +55,10 @@ const resolveCubeTexture = async (gl) => {
 const gl = WebGLService.getContext('.cs');
 const program = WebGLService.getProgram(gl, V_SOURCE, F_SOURCE);
 
-// const points = GeometryService.getCubePoints(1);
-
+// 这里要注意, 由于该坐标会直接传递给gl_Position, 因此范围必须保证在[-1, 1]
 const points = new Float32Array([
-    -1, -1, -1, 1, -1, -1, 1, 1, -1,
-    1, 1, -1, -1, 1, -1, -1, -1, -1
+    -1, -1, 0, 1, -1, 0, 1, 1, 0,
+    1, 1, 0, -1, 1, 0, -1, -1, 0
 ]);
 
 let degree = 0;
@@ -93,7 +79,7 @@ let degree = 0;
         const { width, height } = gl.canvas;
 
         const viewMatrix = MatrixService.lookAt(0, 0, 0, sin, 0, -cos, 0, 1, 0);
-        const projectionMatrix = MatrixService.perspective(45, width / height, 0.1, 100);
+        const projectionMatrix = MatrixService.perspective(45, width / height, 1, 100);
         const inverse = MatrixService.inverse(MatrixService.multiply(viewMatrix, projectionMatrix));
         WebGLService.setUniform(gl, program, 'u_inverseVP', inverse, 'matrix4');
         WebGLService.setAttribute(gl, program, 'a_position', points, 3);

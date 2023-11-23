@@ -21,6 +21,8 @@ const F_SOURCE = `
     uniform sampler2D u_Sampler;
     const vec3 lightDirection = vec3(1.0, 1.0, 1.0);
     void main() {
+
+        // 这里的坐标不需要归一化, 因为GeometryService给出的纹理坐标就是[0, 1]的
         vec4 color = texture2D(u_Sampler, v_Texcoord.xy);
         gl_FragColor = color;
     }

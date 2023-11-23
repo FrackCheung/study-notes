@@ -111,6 +111,14 @@ let degree = 0;
         const cos = Math.cos(radius);
         const sin = Math.sin(radius);
 
+        // 天空盒是在原点处观察圆周上的点
+        // 反射盒(环境贴图)是在圆周上观察原点
+
+        // 反射盒的圆周半径, 要大于天空盒的圆周半径
+
+        // 两个视图应该有相同的角速度! 这样反射盒上的内容刚好能和天空盒对应上, 更好看
+
+        // 先绘制天空盒, 这里需要禁用深度测试, 不然下一步绘制的立方体将不可见
         gl.useProgram(skyboxProgram);
         gl.disable(gl.DEPTH_TEST);
         const viewMatrix = MatrixService.lookAt(0, 0, 0, sin, 0, -cos, 0, 1, 0);
@@ -120,6 +128,7 @@ let degree = 0;
         WebGLService.setAttribute(gl, skyboxProgram, 'a_position', skyboxPoints, 3);
         gl.drawArrays(gl.TRIANGLES, 0, skyboxPoints.length / 3);
 
+        // 再绘制立方体, 这里需要启用深度测试, 为了立方体不出现畸形
         gl.useProgram(reflectProgram);
         gl.enable(gl.DEPTH_TEST);
         gl.clear(gl.DEPTH_BUFFER_BIT);

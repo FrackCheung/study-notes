@@ -14,6 +14,8 @@ const V_SOURCE = `
 
     void main() {
         gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
+        
+        // 法向量和顶点位置只和模型矩阵有关, 传入片段着色器
         v_Normal = mat3(u_Model) * a_Normal;
         v_Position = mat3(u_Model) * a_Position;
     }
@@ -28,8 +30,12 @@ const F_SOURCE = `
     const vec3 eyePos = vec3(0.0, 0.0, 3.0);
 
     void main() {
+
+        // from为入射光线, 即从视点指向顶点的向量
         vec3 from = normalize(v_Position - eyePos);
         vec3 normal = normalize(v_Normal);
+
+        // reflect根据入射光线和法向量, 计算出反射向量
         vec3 to = reflect(from, normal);
         gl_FragColor = textureCube(u_Sampler, to);
     }

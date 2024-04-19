@@ -300,4 +300,25 @@ export class MatrixService {
             0, 0, -2 * near * far / (far - near), 0
         ];
     }
+
+    /**
+     * 正射投影矩阵
+     * @param {number} left 
+     * @param {number} right 
+     * @param {number} bottom 
+     * @param {number} top 
+     * @param {number} near 
+     * @param {number} far 
+     * @returns {number[]}
+     */
+    static orth(left, right, bottom, top, near, far) {
+        return [
+            2 / (right - left), 0, 0, 0,
+            0, 2 / (top - bottom), 0, 0,
+            0, 0, 0, -2 / (far - near),
+            -(right + left) / (right - left),
+            -(top + bottom) / (top - bottom),
+            -(far + near) / (far - near), 1
+        ];
+    }
 }

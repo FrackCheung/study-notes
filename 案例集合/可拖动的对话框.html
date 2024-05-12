@@ -1,240 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>拖动对话框</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        border: 0;
+        padding: 0;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>可拖动的对话框</title>
-  <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      border: 0;
-      width: 100%;
-      height: 100%;
-    }
+      .dialog {
+        position: fixed;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 400px;
+        border-radius: 15px;
+        box-shadow: 5px 5px 15px gray;
+      }
 
-    .dialog {
-      position: fixed;
-      left: 200px;
-      top: 200px;
-      width: 600px;
-      border-radius: 15px;
-      box-shadow: 5px 5px 10px gray;
-    }
+      .header,
+      .footer {
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        font-weight: bold;
+        text-align: center;
+      }
 
-    .header {
-      width: 100%;
-      height: 40px;
-      background-image: linear-gradient(rgb(202, 235, 202), rgb(139, 245, 118));
-      border-radius: 15px 15px 0 0;
-      font-weight: bold;
-      line-height: 40px;
-      text-align: center;
-      cursor: move;
-    }
+      .header {
+        border-radius: 15px 15px 0 0;
+        background-image: linear-gradient(
+          rgb(232, 247, 146),
+          rgb(235, 236, 165)
+        );
+        cursor: move;
+      }
 
-    .content {
-      width: 100%;
-      height: 300px;
-      background-color: azure;
-      padding: 40px;
-      box-sizing: border-box;
-    }
+      .footer {
+        border-radius: 0 0 15px 15px;
+        background-image: linear-gradient(
+          rgb(180, 245, 161),
+          rgb(215, 235, 202)
+        );
+      }
 
-    .footer {
-      width: 100%;
-      height: 40px;
-      border-radius: 0 0 15px 15px;
-      background-image: linear-gradient(rgb(245, 245, 215), rgb(240, 240, 178));
-    }
-
-    span {
-      display: block;
-      margin-left: 20px;
-      margin-top: 20px;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="dialog">
-    <div class="header">对话框标题</div>
-    <div class="content">内容</div>
-    <div class="footer">
-      <span>对话框是否允许超出可视区域: <input type="checkbox"></span>
+      .content {
+        width: 100%;
+        height: 150px;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dialog">
+      <div class="header">标题</div>
+      <div class="content">
+        <p>启用拖拽: <input type="checkbox" class="enableMove" /></p>
+        <p>允许溢出: <input type="checkbox" class="enableOverflow" /> (将对话框拖至视口以外)</p>
+      </div>
+      <div class="footer"></div>
     </div>
-  </div>
-  <script>
-    /**
-     * 对话框元素
-     * @type { HTMLDivElement }
-     */
-    const dialogBox = document.querySelector('.dialog');
-
-    /**
-     * 需要注册鼠标事件的标题栏元素
-     * @type { HTMLDivElement }
-     */
-    const titleElement = document.querySelector('.header');
-
-    /**
-     * 内部配置项
-     * @type { { MOVEABLE: boolean, MOUSE_POSITION: { X: number, Y: number }, OVERFLOW: boolean } }
-     */
-    const INTERNAL_CONFIG = {
-      // 对话框是否可以拖动
-      MOVEABLE: false,
-
-      // 鼠标初始位置
-      MOUSE_POSITION: {
-        X: 0,
-        Y: 0
-      },
-
-      // 对话框是否可以超出可视区域边界
-      OVERFLOW: false
-    }
-
-    /**
-     * 计算鼠标相对于上一次的偏移量, XY方向
-     * @param {number} currentX 
-     * @param {number} currentY 
-     * @returns { { moveX: number, moveY: number } }
-     */
-    const calcMouseMoveXY = (currentX, currentY) => {
+    <script>
       /**
-       * @type { number }
+       * 对话框元素
+       * @type {HTMLDivElement}
        */
-      const moveX = currentX - INTERNAL_CONFIG.MOUSE_POSITION.X;
+      const dialogElement = document.querySelector(".dialog");
 
       /**
-       * @type { number }
+       * 对话框标题元素, 鼠标按下事件需要用到
+       * @type {HTMLDivElement}
        */
-      const moveY = currentY - INTERNAL_CONFIG.MOUSE_POSITION.Y;
+      const headerElement = document.querySelector(".header");
 
-      // 将鼠标位置记录为当前的位置, 方便下一次计算
-      INTERNAL_CONFIG.MOUSE_POSITION.X = currentX;
-      INTERNAL_CONFIG.MOUSE_POSITION.Y = currentY;
-
-      return { moveX, moveY };
-    }
-
-    /**
-     * 将value限制在min和max之间
-     * @param {number} value 
-     * @param {number} min 
-     * @param {number} max 
-     * @returns {number}
-     */
-    const clamp = (value, min, max) => {
-      if (value <= min) {
-        return min;
-      } else if (value >= max) {
-        return max;
-      } else {
-        return value;
-      }
-    }
-
-    /**
-     * 将对话框在x, y方向上移动指定的距离
-     * @param {number} x 
-     * @param {number} y
-     * @returns { void } 
-     */
-    const translateDialog = (x, y) => {
-      const { left, top } = dialogBox.getBoundingClientRect();
-      const newLeft = INTERNAL_CONFIG.OVERFLOW
-        ? (left + x)
-        : clamp(left + x, 0, window.innerWidth - dialogBox.offsetWidth);
-      const newTop = INTERNAL_CONFIG.OVERFLOW
-        ? (top + y)
-        : clamp(top + y, 0, window.innerHeight - dialogBox.offsetHeight);
-      dialogBox.style.left = `${newLeft}px`;
-      dialogBox.style.top = `${newTop}px`;
-    }
-
-    // 鼠标按下事件
-    document.addEventListener(
-      'mousedown',
       /**
-       * 鼠标按下的回调事件
-       * @param {MouseEvent} mouseDownEvent 
+       * 是否允许拖拽的复选框元素
+       * @type {HTMLInputElement}
        */
-      mouseDownEvent => {
+      const enableMoveCheckbox = document.querySelector(".enableMove");
 
-        if (mouseDownEvent.target !== titleElement) {
-          return;
-        }
-
-        // 鼠标按下时, 才允许对话框移动, 否则不允许
-        INTERNAL_CONFIG.MOVEABLE = true;
-
-        // 记录鼠标按下时的初始位置, 方便mousemove事件计算鼠标移动的偏移量
-        INTERNAL_CONFIG.MOUSE_POSITION.X = mouseDownEvent.clientX;
-        INTERNAL_CONFIG.MOUSE_POSITION.Y = mouseDownEvent.clientY;
-      }
-    );
-
-    // 鼠标抬起事件
-    document.addEventListener(
-      'mouseup',
       /**
-       * 鼠标松开时, 不允许对话框移动
+       * 是否允许溢出的复选框元素
+       * @type {HTMLInputElement}
        */
-      () => {
-        INTERNAL_CONFIG.MOVEABLE = false;
-      }
-    );
+      const enableOverflowCheckbox = document.querySelector(".enableOverflow");
 
-    // 鼠标移动事件
-    document.addEventListener(
-      'mousemove',
       /**
-       * 鼠标移动时, 设置对话框
-       * @param {MouseEvent} mouseMoveEvent 
-       * @returns { void }
+       * 一些全局配置项
+       * @type {{MOVEABLE: boolean, TEXT_SELECT_DISABLED: boolean, MOUSE_POS: {X: nunber, Y: number}, OVERFLOW: boolean}}
        */
-      mouseMoveEvent => {
-        if (!INTERNAL_CONFIG.MOVEABLE) {
-          return;
-        }
+      const DIALOG_CONFIG = {
+        // 是否允许拖动对话框
+        MOVEABLE: false,
+
+        // 是否禁用文档选取功能
+        TEXT_SELECT_DISABLED: false,
+
+        // 是否允许对话框移动到视口以外
+        OVERFLOW: false,
+
+        // 保存鼠标位置, 方便mousemove事件中计算鼠标的偏移量
+        MOUSE_POS: {
+          X: 0,
+          Y: 0,
+        },
+      };
+
+      // ====================================== 几个抽取的通用方法 ======================================
+
+      /**
+       * 在mousemove事件中, 计算每次鼠标在x,y方向上移动的偏移量
+       * @param {MouseEvent} mouseMoveEvent 鼠标移动事件的入参
+       * @returns {{moveX: number, moveY: number}}
+       */
+      const calcMouseMoveXY = (mouseMoveEvent) => {
+        // 获取鼠标当前位置
         const { clientX, clientY } = mouseMoveEvent;
-        const { moveX, moveY } = calcMouseMoveXY(clientX, clientY);
-        translateDialog(moveX, moveY);
-      }
-    );
 
-    // 在拖动对话框的过程中, 禁用掉选取文本, 避免文本被选中, 影响美观
-    document.addEventListener(
-      'selectstart',
+        // 和DIALOG_CONFIG中保存的上一次的鼠标位置做差
+        const moveX = clientX - DIALOG_CONFIG.MOUSE_POS.X;
+        const moveY = clientY - DIALOG_CONFIG.MOUSE_POS.Y;
+
+        // 非常重要, 将DIALOG_CONFIG中的鼠标位置刷新为当前位置
+        DIALOG_CONFIG.MOUSE_POS.X = clientX;
+        DIALOG_CONFIG.MOUSE_POS.Y = clientY;
+
+        return { moveX, moveY };
+      };
+
       /**
-       * selecStart事件, 是开始选中文本时触发的事件
-       * @param {Event} seletStartEvent 
+       * 数学方法, 将value限制在min和max之间, 小于min则返回min, 大于max则返回max, min和max之间则返回value
+       * @param {number} value
+       * @param {number} min
+       * @param {number} max
+       * @returns
        */
-      seletStartEvent => {
-        if (INTERNAL_CONFIG.MOVEABLE) {
-          seletStartEvent.preventDefault();
+      const clamp = (value, min, max) => {
+        if (value < min) {
+          return min;
         }
-      }
-    );
+        if (value > max) {
+          return max;
+        }
+        return value;
+      };
 
-    // 复选框设置对话框是否允许超出可视范围
-    document.querySelector('input').addEventListener(
-      'input',
       /**
-       * @param {Event} inputEvent
-       */ 
-      inputEvent => {
+       * 移动对话框的通用方法, 在mousemove事件中, 计算好了偏移量后, 调用此方法移动对话框
+       * @param {number} x
+       * @param {number} y
+       * @returns {void}
+       */
+      const moveDialog = (x, y) => {
+        // 获取当前对话框元素相对于视口的位置
+        const { left, top } = dialogElement.getBoundingClientRect();
+
+        // 根据鼠标偏移量, 计算新位置, 直接相加即可, 但是要判断边界
+        const newLeft = DIALOG_CONFIG.OVERFLOW
+          ? left + x
+          : clamp(left + x, 0, window.innerWidth - dialogElement.offsetWidth);
+
+        const newTop = DIALOG_CONFIG.OVERFLOW
+          ? top + y
+          : clamp(top + y, 0, window.innerHeight - dialogElement.offsetHeight);
+
+        dialogElement.style.left = `${newLeft}px`;
+        dialogElement.style.top = `${newTop}px`;
+
+        // 非常重要, 禁用transform, 因为在CSS中定义了transform(为了做居中), 会一直生效, 导致移动bug
+        dialogElement.style.transform = `translateX(0)`;
+      };
+
+      // =======================================================================================
+
+      // =========================== 核心拖动事件注册 ===========================
+
+      /**
+       * mousemove事件的回调
+       * @param {MouseEvent} mouseMoveEvent
+       */
+      const mouseMoveEventCallback = (mouseMoveEvent) => {
+        // 计算鼠标偏移量
+        const { moveX, moveY } = calcMouseMoveXY(mouseMoveEvent);
+
+        // 移动对话框
+        moveDialog(moveX, moveY);
+      };
+
+      /**
+       * 鼠标按下事件回调
+       * @param {MouseEvent} mouseDownEvent
+       */
+      const mouseDownEventCallback = (mouseDownEvent) => {
+        // 首先判断是否可以拖动, 以及是否是在标题元素上触发
+        if (
+          mouseDownEvent.target !== headerElement ||
+          !DIALOG_CONFIG.MOVEABLE
+        ) {
+          return;
+        }
+
+        // 按下时记录鼠标位置
+        DIALOG_CONFIG.MOUSE_POS.X = mouseDownEvent.clientX;
+        DIALOG_CONFIG.MOUSE_POS.Y = mouseDownEvent.clientY;
+
+        DIALOG_CONFIG.TEXT_SELECT_DISABLED = true;
+
+        // 开始监听鼠标移动事件
+        window.addEventListener("mousemove", mouseMoveEventCallback);
+      };
+
+      /**
+       * 鼠标抬起事件回调, 需要取消鼠标移动事件
+       */
+      const mouseUpEventCallback = () => {
+        DIALOG_CONFIG.TEXT_SELECT_DISABLED = false;
+        window.removeEventListener("mousemove", mouseMoveEventCallback);
+      };
+
+      document.addEventListener("mousedown", mouseDownEventCallback);
+      document.addEventListener("mouseup", mouseUpEventCallback);
+
+      // ===================================================================
+
+      // ========================== 其他事件注册 ============================
+
+      /**
+       * 是否允许拖动对话框的复选框的选中事件
+       * @param {InputEvent} inputEvent
+       */
+      const enableMoveEventCallback = (inputEvent) => {
         /**
          * @type {HTMLInputElement}
          */
-        const inputElement = inputEvent.target;
-        INTERNAL_CONFIG.OVERFLOW = inputElement.checked
-      })
-  </script>
-</body>
+        const target = inputEvent.target;
+        DIALOG_CONFIG.MOVEABLE = target.checked;
+      };
 
+      /**
+       * 是否允许拖动对话框到视口以外的复选框选中事件
+       * @param {InputEvent} inputEvent
+       */
+      const enableOverflowEventCallback = (inputEvent) => {
+        /**
+         * @type {HTMLInputElement}
+         */
+        const target = inputEvent.target;
+        DIALOG_CONFIG.OVERFLOW = target.checked;
+      };
+
+      enableMoveCheckbox.addEventListener("input", enableMoveEventCallback);
+      enableOverflowCheckbox.addEventListener(
+        "input",
+        enableOverflowEventCallback
+      );
+
+      // ============================================================================
+
+      // ============================ 补丁事件 ============================
+      window.addEventListener(
+        "selectstart",
+        /**
+         * 如果对话框正在移动, 需要禁用文档的选取功能, 以免移动过程中, 选中文本, 造成不美观
+         * @param {Event} event
+         */
+        (event) => {
+          if (DIALOG_CONFIG.TEXT_SELECT_DISABLED) {
+            event.preventDefault();
+          }
+        }
+      );
+    </script>
+  </body>
 </html>

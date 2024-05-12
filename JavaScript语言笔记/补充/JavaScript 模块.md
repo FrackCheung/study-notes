@@ -121,5 +121,55 @@ import Person, { PI } from 'module.js';
 ```
 + 可以使用`as`对导入导出重命名
 
+#### ES6模块
++ ES6模块是`单文件`模块, 不能把多个模块合在一个文件中
++ ES6是`静态`模块, 需要预先静态定义所有的导入导出, 无法动态补充
++ ES6模块是`单例`, 模块只有一个实例, 多个导入是对单个实例的引用
++ ES6模块导出的属性/方法/原始值都是`绑定`, 类似于`指针`, 模块内部修改会影响导出
++ ES6之前的模块中暴露的`原始值`不是引用, 是`复制赋值`, 模块内部的修改不影响导出
++ 模块导出的陷阱
+```JavaScript
+// 模块导出的陷阱
+// 1
+export function moduleA() { }
+// 2
+function moduleB() { }
+export { moduleB as default };
+// 第1种: 导出的是函数表达式的值, 即使给moduleA重新赋值, 导出的依然是该函数
+// 第2种: 导出的是标识符, 如果对moduleB重新赋值, 导出的值也会随之变化
+```
++ `import`和`export`必须出现在`最顶层`作用域
++ `import`导入的成员`不允许`对其`重新赋值`
++ `import`导入语句是会`提升`的
++ ES6模块是`静态加载语义`的, 即使有循环依赖, 任何一个运行之前两者都将加载
++ 循环依赖
+```JavaScript
+// 循环依赖, 静态决议, 预先静态加载, 
+// 模块A
+import moduleFromB from B;
+export default function methodA(x) {
+    if (x >= 10) {
+        return methodB(x - 1);
+    }
+    return x2;
+}
+
+// 模块B
+import moduleFromA from A
+export default function methodB(y) {
+    if (y > 5) {
+        return methodA(y / 2);
+    }
+    return y3;
+}
+// A和B循环依赖, 但是不影响使用, 因为在使用之前A和B都已经加载决议
+```
+
+#### 模块加载
++ `import`语句使用外部环境提供的独立机制将模块标识符解析为可用指令
+  - `浏览器`会将模块标识符解析为`URL`(一般情况下)
+  - `Node.js`会将模块标识符解析为`文件系统路径`
++ 模块加载器本身不由ES6指定
+
 ****
 **[返回主目录](../readme.md)**

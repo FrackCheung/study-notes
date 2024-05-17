@@ -1,30 +1,6 @@
 # JavaScript Promise
 
 **[返回主目录](../readme.md)**
-
-#### Promise的一些概念:
-+ `不`把自己的程序`交给第三方`, 而是第三方通知任务结束
-```JavaScript
-// 希望两个值都已经决议之后, 再输出两个变量之和
-function addPromiseValue() {
-    return Promise.all([APromiseMethod(), BPromiseMethod()])
-        .then(valuesArray => {
-            return valuesArray.reduce((x, y) => x + y);
-        })
-}
-addPromiseValue().then(result => {
-    console.log(result);
-});
-```
-+ Promise封装了依赖于时间的状态, 因此Promise本身是`与时间无关`的
-+ Promise按照`可预测`的方式组成, 而无需关心时序或底层的结果
-+ Promise一旦决议, 将永远保持在这个状态, 此时Promise将成为`不变值`
-+ Promise是一种封装和组合未来值的易于复用的机制
-+ 只有`真正的Promise才能被拒绝`, 如果在构造过程中出现错误, 会`抛出异常`, 而不是被拒绝的Promise, 例如: 
-  - `new Promise(null)`
-  - `Promise.race(12)`
-  - ...
-
 #### thenable
 + `thenable`: 判断某个值是否是Promise
 ```JavaScript

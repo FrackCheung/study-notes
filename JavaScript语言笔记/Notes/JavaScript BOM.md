@@ -1,13 +1,9 @@
 + [总目录](../readme.md)
 ***
-<!-- TOC -->
-
 - [window对象](#window对象)
 - [location对象](#location对象)
 - [navigator对象](#navigator对象)
 - [history对象](#history对象)
-
-<!-- /TOC -->
 ***
 #### window对象
 + `window`对象是BOM的核心, 表示浏览器的实例, 具有双重身份:

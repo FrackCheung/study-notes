@@ -8,7 +8,7 @@
   - **[JavaScript 代理和反射](./Notes/JavaScript%20代理和反射.md)**
   - **[JavaScript 迭代器和生成器](./Notes/JavaScript%20迭代器和生成器.md)**
   - **[JavaScript Promise](./Notes/JavaScript%20Promise.md)**
-+ **[JavaScript BOM]()**
++ **[JavaScript BOM](./Notes/JavaScript%20BOM.md)**
 + **[JavaScript DOM]()**
 + **[JavaScript 事件]()**
 + **[JavaScript 表单]()**

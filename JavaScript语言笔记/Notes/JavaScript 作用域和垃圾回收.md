@@ -1,7 +1,7 @@
 + [总目录](../readme.md)
 ***
-+ [函数](#函数)
-+ [作用域和垃圾回收](#作用域和垃圾回收)
+- [函数](#函数)
+- [作用域和垃圾回收](#作用域和垃圾回收)
 ***
 #### 函数
 + 全局定义的函数会在程序执行前提升: 这意味着函数可以先调用再定义
@@ -178,11 +178,20 @@
     this.click = () => {
       
     }
-
     // 移动到外部
     this.clicked = !this.clicked; // this指向Button实例
   }
   ```
++ 其他情况下的`this`
+  - 原型追加方法, `this`依然指向实际的调用
+  - 隐式调用不关心方法来自自身还是原型链, 只关心`作为方法被调用`
+  ```JavaScript
+  Object.prototype.returnThis = function() {
+    return this;
+  }
+  ([1, 2, 3]).getThis(); // [1, 2, 3]
+  ```
+  - DOM中的事件, `this`指向绑定事件的元素(非箭头函数)
 + `this`丢失的情况
   - 对象/类方法被复制给其他变量, 或作为回调参数传入
   - 嵌套的普通函数
@@ -233,6 +242,37 @@
     }
   }
   ```
++ **重点**: 箭头函数无论何种方式被调用, 其继承的`this`都不变
+  ```JavaScript
+  const person = {
+    index: 1,
+    getIndex() {
+      const getThis = () => {
+        console.log(this.index);
+      }
+      return getThis;
+    }
+  };
+  const getThis = person.getIndex(); // getThis是箭头函数的引
+  const runCallback = cb => cb();
+  runCallback(getThis); // 1
+  setTimeout(getThis, 0); // 1
+  ```
+***
+**为什么**? 箭头函数没有自己的`this`, 只能从定义处的上下文继承而来, 而继承的方式, 类似于`let that = this`, 将定义处的`this`固化为一个固定值, 固定值再怎么传来传去, 都不会变化
+```JavaScript
+const person = {
+    index: 1,
+    getIndex() {
+      let that = this;
+      const getThis = () => {
+        console.log(that.index);
+      }
+      return getThis;
+    }
+  };
+``` 
+***
 + 闭包的概念: 
   - 闭包指的是: 函数和其所有能够访问到的变量构成的封闭集合, 只要函数在, 可访问的变量就一直在
   - 闭包会将函数的可访问的变量锁定住, 函数生命周期不结束, 闭包内的变量也不会被垃圾回收

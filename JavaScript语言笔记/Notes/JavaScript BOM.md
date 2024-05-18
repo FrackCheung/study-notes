@@ -4,6 +4,7 @@
 - [location对象](#location对象)
 - [navigator对象](#navigator对象)
 - [history对象](#history对象)
+- [前端路由](#前端路由)
 ***
 #### window对象
 + `window`对象是BOM的核心, 表示浏览器的实例, 具有双重身份:
@@ -268,3 +269,165 @@ console.log(parseInt('3.14')); // Method override: 3.14
   ```
 
 #### history对象
++ `history`对象是`window`的属性, 提供了当前窗口历史记录信息
++ `history`可以直接使用
++ 切换历史记录
+  - `go`方法: 传入正数表示前进, 传入负数表示后退
+  - `back`方法, 是`go(-1)`的代替方法, 二者效果一样
+  - `forward`方法, 是`go(1)`的代替方法, 二者效果一样
+  - `length`属性, 表示当前窗口的历史记录数量
+  ```JavaScript
+  // 假设当前的URL是https//www.baidu.com/
+  location.hash = 'hashvalue'; // https//www.baidu.com/#hashvalue
+
+  history.back(); // https//www.baidu.com
+  history.forward(); // https//www.baidu.com/#hashvalue
+
+  console.log(history.length); // 3 (我的Chrome默认打开是空白页)
+  ```
++ URL状态管理
+  - `hashchange`事件, 当页面URL的`hash`值变化时, 会触发该事件
+  - **小知识**: 修改`hash`会导致页面中id为该值的元素滚动到左上角, 但页面不会重载刷新
+  ```JavaScript
+  let html = "";
+  for (let index = 1; index < 100; index++) {
+      html += `<p id="text${index}">这是一段文本, 这是第${index}部分</p>`
+  }
+  document.body.innerHTML = html;
+  window.addEventListener(
+    'hashchange',
+   /**
+    * hashchange事件参数
+    * @param {HashChangeEvent} event 
+    */
+    event => {
+      const { oldURL, newURL }  = event;
+      console.log(oldURL, newURL);
+      // http://localhost:8000
+      // http://localhost:8000/#text50
+    }
+  );
+  location.hash = 'text50';
+  ```
+  - `pushState()`方法: 修改URL, 但页面不会刷新, 还可以给URL绑定一些状态数据
+  - `pushState`接收三个参数: 状态数据, 标题, 新的URL
+  - `pushState`方法同样会添加历史记录
+  - 在历史记录中切换时会触发`popstate`事件, 可以取出状态数据
+  - **TIPS**: 标题参数目前无具体使用场景
+  ```html
+  <!-- 假设当前的URL是http://localhost:8000 -->
+  <button class="login">登录</button>
+  <button class="forward">前进</button>
+  <button class="back">后退</button>
+  <script>
+    document.querySelector('.login').addEventListener('click', () => {
+      history.pushState({ data: 'login' }, '登录', '/login');
+    });
+    document.querySelector('.back').addEventListener('click', () => history.back());
+    document.querySelector('.forward').addEventListener('click', () => history.forward());
+    window.addEventListener('popstate', event => console.log(event.state));
+  </script>
+
+  <!-- 操作: 依次点击 登录 后退 前进 三个按钮, 看输出 -->
+  <!-- 输出1: null -->
+  <!-- 输出2: { data: 'login' } -->
+  ```
+***
+**注解1**: `pushState`方法是三个作用:
++ 修改当前URL, 但必须是同源URL
++ URL会添加进历史记录
++ URL会和状态数据绑定
+```mermaid
+graph TD
+  subgraph 浏览器
+  A["访问http://localhost:8000"]
+  B["history.pushState({ data: 'login' }, '', '/login')"]
+  C["http://localhost:8000/login"]
+
+  A ==>|遇到pushState方法| B
+  B ==>|"修改当前URL, 追加/login"| C
+
+  subgraph 历史记录管理器
+  G["http://localhost:8000"]
+  D["http://localhost:8000/login"]
+  end
+
+  end
+
+  A ==>|自动添加一条记录, 但无状态信息| G
+  B ==>|添加记录, 同时将状态数据绑定| D
+
+  style 历史记录管理器 fill:#EBCDCC
+```
+**注解2**: 切换历史记录, 触发`popstate`事件, 取出状态数据
++ 可以通过点击前进后退按钮, 或者`history.go`等方法
++ 事件的回调参数`event`, 通过`event.state`即可获取状态数据
++ 获取到的是切换之后的URL的状态数据
+```mermaid
+graph TD
+  D["在该页面触发popstate事件, 有, 输出{ data: 'login' }"]
+  A["http://localhost:8000/login"]
+  B["http://localhost:8000"]
+  C["在该页面触发popstate事件, 但是没有, 因此输出null"]
+
+  A ==>|"调用history.back(), 后退一页"| B
+  B ==>|"调用history.forward(), 前进一页"| A
+  B === C
+  D === A
+
+  style C fill:#67C299
+  style D fill:#DEC69D
+  linkStyle 0 stroke:#67C299
+  linkStyle 1 stroke:#DEC69D
+  linkStyle 2 stroke:#67C299
+  linkStyle 3 stroke:#DEC69D
+```
+**注解3**: 可以通过`replaceState`方法, 修改当前URL的状态数据
+```JavaScript
+// 只有两个参数, 状态数据和标题
+history.replaceState({ data: 'index' }, '主页');
+```
+***
+
+#### 前端路由
++ 通过`history`对象, 可以轻松实现修改URL, 但不刷新页面的功能
++ 多数前端框架均采用这种模式, 在修改路由时, 同步加载对应视图组件, 或进行路由拦截
++ 新修改的URL, 如果在服务器没有对应的路由, 会导致404错误:
+  - 假设系统网址是: `http://js.learning.com`
+  - 用户访问系统各个部分, 前端路由会加入各种路径: 
+    - 登录: `http://js.learning.com/login`
+    - 关于: `http://js.learning.com/about`
+    - DOM学习: `http://js.learning.com/dom/document/1`
+    - ...
+  - 用户保存带路由的URL为书签, 或者在当前页手动刷新
+  - 服务器上没有`/login`或者`/about`等路径, 因此报404错误
+  - 因此后台服务必须设置, 将所有404路径请求, 重定向到根路径
++ 前端框架也必须设置页面加载时的URL处理, 以正确设置视图组件
++ 因此, 前端路由框架至少需要包含两部分的功能:
+  - 路由跳转: 不刷新页面, 修改URL, 并提供相应的视图组件
+  - 初始加载: 正确判断当前URL, 并切换到正确的视图组件
+```mermaid
+graph TD
+A["用户输入"]
+B["服务器处理"]
+C["根路径index.html"]
+D["页面加载"]
+E["前端路由"]
+F["DOM学习 --> document --> 第1节"]
+G["前端路由"]
+H["充值中心"]
+
+A ==>|在地址栏输入网址: http://js.learning.com/dom/document/1| B
+B ==>|服务器找不到路径, 但是做了404重定向, 返回根路径内容| C
+C ==>|地址栏不变, 依然是http://js.learning.com/dom/document/1| D
+D ==>|前端路由框架开始工作| E
+E ==>|识别当前URL, 并处理/dom/document/1| F
+F ==>|用户想继续学, 点击充值中心充值, /charge| G
+G ==>|修改URL, 并切换视图组件为 ChargeComponent| H
+
+style E fill:#67C299
+style G fill:#67C299
+```
+***
+**提示**: 前端页面载入后, 路由框架会处理URL的工作, 如果访问的URL前端路由都无法识别, 将会出错, 因此前端开发都会提供一个更加好看的404错误页面
+***

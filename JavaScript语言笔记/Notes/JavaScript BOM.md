@@ -365,10 +365,10 @@ graph TD
 + 获取到的是切换之后的URL的状态数据
 ```mermaid
 graph TD
-  D["在该页面触发popstate事件, 有, 输出{ data: 'login' }"]
+  D["在该页面触发popstate事件, 有状态数据, 输出{ data: 'login' }"]
   A["http://localhost:8000/login"]
   B["http://localhost:8000"]
-  C["在该页面触发popstate事件, 但是没有, 因此输出null"]
+  C["在该页面触发popstate事件, 没有状态数据, 输出null"]
 
   A ==>|"调用history.back(), 后退一页"| B
   B ==>|"调用history.forward(), 前进一页"| A

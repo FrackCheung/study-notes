@@ -2,21 +2,21 @@
 + 使用`appendChild`动态创建表格会写出非常繁琐的代码
 + 表格的`<table>`/`<tbody>`/`<tr>`元素提供了更多的属性和方法
 
-|属性/方法|归属元素|作用|
-|:-:|:-:|:-:|
-|`caption`|`<table>`|指向`caption`|
-|`tBodies`|`<table>`|包含`tbody`的HTMLCollection|
-|`tFoot`|`<table>`|指向`tfoot`|
-|`tHead`|`<table>`|指向`thead`|
-|`rows`|`<table>`|所有行的HTMLCollection|
-|`(create/delete)THead`|`<table>`|创建/删除`thead`|
-|`(create/delete)Caption`|`<table>`|创建/删除`caption`|
-|`(create/delete)TFoot`|`<table>`|创建/删除`tfoot`|
-|`(delete/insert)Rows`|`<table>`|插入/删除行, 参数是位置`pos`|
-|`rows`|`tbody`|`tbody`中的所有行的HTMLCollection|
-|`(insert/delete)Rows`|`tbody`|插入/删除行, 参数是位置`pos`|
-|`cells`|`tr`|`tr`中的所有单元格|
-|`(insert/delete)Cell`|`tr`|插入/删除单元格, 参数是位置`pos`|
+|        属性/方法         | 归属元素  |               作用                |
+| :----------------------: | :-------: | :-------------------------------: |
+|        `caption`         | `<table>` |           指向`caption`           |
+|        `tBodies`         | `<table>` |    包含`tbody`的HTMLCollection    |
+|         `tFoot`          | `<table>` |            指向`tfoot`            |
+|         `tHead`          | `<table>` |            指向`thead`            |
+|          `rows`          | `<table>` |      所有行的HTMLCollection       |
+|  `(create/delete)THead`  | `<table>` |         创建/删除`thead`          |
+| `(create/delete)Caption` | `<table>` |        创建/删除`caption`         |
+|  `(create/delete)TFoot`  | `<table>` |         创建/删除`tfoot`          |
+|  `(delete/insert)Rows`   | `<table>` |   插入/删除行, 参数是位置`pos`    |
+|          `rows`          |  `tbody`  | `tbody`中的所有行的HTMLCollection |
+|  `(insert/delete)Rows`   |  `tbody`  |   插入/删除行, 参数是位置`pos`    |
+|         `cells`          |   `tr`    |        `tr`中的所有单元格         |
+|  `(insert/delete)Cell`   |   `tr`    | 插入/删除单元格, 参数是位置`pos`  |
 
 ```JavaScript
 const table = document.createElement('table');
@@ -81,17 +81,17 @@ interface MutationRecord {
 ```
 + `MutationRecord`实例属性
 
-|属性|描述|针对的类型|
-|:-:|:-:|:-:|
-|`target`|发生变化的目标节点|`all`|
-|`type`|`attributes`/`characterData`/`childList`|`all`|
-|`oldValue`|记录旧值, 需要先启用|`attributes`/`characterData`|
-|`attributeNames`|变化的属性名|`attributes`|
-|`attributeNamespace`|变化的命名空间|`attributes`|
-|`addedNodes`|添加节点的NodeList|`childList`|
-|`removedNodes`|移除节点的NodeList|`childList`|
-|`previousSibling`|变化节点的前一个兄弟节点|`childList`|
-|`nextSibling`|变化节点的下一个兄弟节点|`childList`|
+|         属性         |                   描述                   |          针对的类型          |
+| :------------------: | :--------------------------------------: | :--------------------------: |
+|       `target`       |            发生变化的目标节点            |            `all`             |
+|        `type`        | `attributes`/`characterData`/`childList` |            `all`             |
+|      `oldValue`      |           记录旧值, 需要先启用           | `attributes`/`characterData` |
+|   `attributeNames`   |               变化的属性名               |         `attributes`         |
+| `attributeNamespace` |              变化的命名空间              |         `attributes`         |
+|     `addedNodes`     |            添加节点的NodeList            |         `childList`          |
+|    `removedNodes`    |            移除节点的NodeList            |         `childList`          |
+|  `previousSibling`   |         变化节点的前一个兄弟节点         |         `childList`          |
+|    `nextSibling`     |         变化节点的下一个兄弟节点         |         `childList`          |
 
 ```JavaScript
 // <button class="login">Login</button>
@@ -118,13 +118,11 @@ document.body.setAttributeNS('namespace', 'id', 'value');
 // namespace
 ```
 ***
-
 + 一个`MutationObserver`实例可以观察多个目标
 ```JavaScript
 observer.observe(document.body, { attributes: true });
 observer.observe(document.querySelector('button'), { attributes: true });
 ```
-
 + 停止观察和复用观察
 ```JavaScript
 const observer = new MutationObserver((record) => console.log(record.oldValue));
@@ -139,12 +137,10 @@ observer.disconnect();
 observer.observe(btn, { attributes: true });
 btn.className = 'Login';
 ```
-
 + 清空记录队列: `takeRecords`, 取出并返回所有的`MutationRecord`实例
 ```JavaScript
 observer.takeRecords();
 ```
-
 + 性能:
   - `MutationObserver`对观察目标是弱引用
   - `MutationRecord`不是弱引用, 而且内部可能包含大量节点引用, 如需长期使用, 建议取出关键值, 放到新对象, 然后丢弃`MutationRecord`
@@ -170,20 +166,19 @@ observer.takeRecords();
 ***
 **注解1**: 参数2, `show`的相关常量(只列出部分)
 
-|常量值|描述|
-|:-:|:-:|
-|`NodeFilter.SHOW_ALL`|所有节点|
-|`NodeFilter.SHOW_ELEMENT`|元素节点|
-|`NodeFilter.SHOW_ATTRIBUTE`|属性节点|
-|`NodeFilter.SHOW_TEXT`|文本节点|
-|`NodeFilter.SHOW_COMMENT`|注释节点|
-|`NodeFilter.SHOW_DOCUMENT`|文档节点|
+|           常量值            |   描述   |
+| :-------------------------: | :------: |
+|    `NodeFilter.SHOW_ALL`    | 所有节点 |
+|  `NodeFilter.SHOW_ELEMENT`  | 元素节点 |
+| `NodeFilter.SHOW_ATTRIBUTE` | 属性节点 |
+|   `NodeFilter.SHOW_TEXT`    | 文本节点 |
+|  `NodeFilter.SHOW_COMMENT`  | 注释节点 |
+| `NodeFilter.SHOW_DOCUMENT`  | 文档节点 |
 
 **注解2**: 参数2, `show`参数可以直接传入以上列表中的常量, 也可以使用按位操作拼接多个值, 除了`NodeFilter.SHOW_ALL`
 ```JavaScript
 const show = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
 ```
-
 **注解3**: 参数3, `filter`可以是`NodeFilter`对象, 即包含一个`acceptNode()`方法的对象, 或者就是一个函数, 入参都是节点
 + 如果要接收该节点进行遍历, 方法或者函数必须返回`NodeFilter.FILTER_ACCEPT`
 + 如果要跳过该节点进行遍历, 方法或者函数必须返回`NodeFilter.FILTER_SKIP`
@@ -196,7 +191,6 @@ const filter = {
     return NodeFilter.FILTER_ACCEPT;
   }
 };
-
 const filter = node => {
   if (node.tagName.toLowerCase() === 'div') {
     return NodeFilter.FILTER_SKIP;
@@ -204,7 +198,6 @@ const filter = node => {
   return NodeFilter.FILTER_ACCEPT;
 }
 ```
-
 **完整示例**:
 ```JavaScript
 const root = document.documentElement;
@@ -222,7 +215,6 @@ while (node !== null) {
 }
 ```
 ***
-
 + `TreeWakler`: 通过`document.createTreeWalker()`创建实例
   - 这是`NodeIterator`的进阶版, 接收的入参和`NodeIterator`完全一致
   - 实例也提供了`nextNode()`和`previousNode()`两个方法

@@ -1,3 +1,10 @@
++ [总目录](../readme.md)
+***
+- [表格元素](#表格元素)
+- [DOM观察](#dom观察)
+- [DOM遍历](#dom遍历)
+- [DOM范围](#dom范围)
+***
 #### 表格元素
 + 使用`appendChild`动态创建表格会写出非常繁琐的代码
 + 表格的`<table>`/`<tbody>`/`<tr>`元素提供了更多的属性和方法
@@ -32,7 +39,7 @@ table.appendChild(tbody);
 document.body.appendChild(table);
 ```
 
-#### DOM观察: MutationObserver
+#### DOM观察
 + 观察DOM, 并在其发生更改时, 异步调用回调
 + 可以观察整个DOM或者DOM的一部分, 甚至单个节点
 + 需要预先指定观察点, 以及回调函数

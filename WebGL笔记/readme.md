@@ -21,12 +21,16 @@
 
 #### WebGL 3D技术
 1. **[WebGL OBJ文件处理](./Notes/WebGL%20OBJ%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86.md)**
-2. **[WebGL 立方体纹理](./Notes/WebGL%20%E7%AB%8B%E6%96%B9%E4%BD%93%E7%BA%B9%E7%90%86.md)**
-3. **[WebGL 雾](./Notes/WebGL%20%E9%9B%BE.md)**
+2. **[WebGL 带材质的OBJ文件]()**
+3. **[WebGL 蒙皮]()**
+4. **[WebGL 立方体纹理](./Notes/WebGL%20%E7%AB%8B%E6%96%B9%E4%BD%93%E7%BA%B9%E7%90%86.md)**
+5. **[WebGL 雾](./Notes/WebGL%20%E9%9B%BE.md)**
 
 #### WebGL 技术集锦
 1. **[WebGL 绘制球体](./Notes/WebGL%20%E7%BB%98%E5%88%B6%E7%90%83%E4%BD%93.md)**
 2. **[WebGL 绘制多个物体](./Notes/WebGL%20%E7%BB%98%E5%88%B6%E5%A4%9A%E4%B8%AA%E7%89%A9%E4%BD%93.md)**
 3. **[WebGL 场景图(层次模型)](./Notes/WebGL%20%E5%9C%BA%E6%99%AF%E5%9B%BE.md)**
 4. **[WebGL 视频纹理](./Notes/WebGL%20%E8%A7%86%E9%A2%91%E7%BA%B9%E7%90%86.md)**
+5. **[WebGL 物体选择Picking]()**
+6. **[WebGL 贝塞尔曲线]()**
 ***

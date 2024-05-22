@@ -1,343 +1,357 @@
-# JavaScript Promise
-
-**[返回主目录](../readme.md)**
-
-#### Promise的一些概念:
-+ `不`把自己的程序`交给第三方`, 而是第三方通知任务结束
-```JavaScript
-// 希望两个值都已经决议之后, 再输出两个变量之和
-function addPromiseValue() {
-    return Promise.all([APromiseMethod(), BPromiseMethod()])
-        .then(valuesArray => {
-            return valuesArray.reduce((x, y) => x + y);
-        })
-}
-addPromiseValue().then(result => {
-    console.log(result);
-});
-```
-+ Promise封装了依赖于时间的状态, 因此Promise本身是`与时间无关`的
-+ Promise按照`可预测`的方式组成, 而无需关心时序或底层的结果
-+ Promise一旦决议, 将永远保持在这个状态, 此时Promise将成为`不变值`
-+ Promise是一种封装和组合未来值的易于复用的机制
-+ 只有`真正的Promise才能被拒绝`, 如果在构造过程中出现错误, 会`抛出异常`, 而不是被拒绝的Promise, 例如: 
-  - `new Promise(null)`
-  - `Promise.race(12)`
-  - ...
-
-#### thenable
-+ `thenable`: 判断某个值是否是Promise
-```JavaScript
-// thenable鸭子类型检测
-if (
-    p !== null
-    && (typeof p === 'objec' || typeof p === 'function')
-    && typeof p.then === 'function'
-) {
-    // 这是一个thenable
-} else {
-    // 这不是一个thenable
-}
-```
-+ `p instanceof Promise`, 这个方法并不完全有效
-+ `thenable`判断, 任何具有`then()方法`的对象和函数, 都被认为是Promise一致的`thenable`
-+ `thenable`并不等价于Promise, 但是如果把非Promise的东西识别为了Promise, 会出bug
-+ Promise不能决议一个`thenable`对象!!! 这会导致奇怪的bug, 而且期约解决值会永远挂住
-+ 上面这点会在后面详细介绍Promise决议的时候再谈
-
-#### Promise需要掌握的一些难点
-+ Promise的`then`总是`异步`调用, Promise会自动防止调用过早的情况出现
-+ 一个Promise决议后, 通过`then(..)`注册的回调都会在下一个异步时机点上依次被立即调用
-```JavaScript
-// Promise通过then注册的回调会在下一个异步时机点上依次被立即调用
-const p = new Promise(resolve => resolve(123));
-p.then(() => {
-    p.then(() => {
-        console.log('C');
++ [总目录](../readme.md)
+***
++ 仅作了解: 信任问题和回调地狱
+  - 传统的异步函数, 开发者无法准确的获知结束时间, 如果又需要依赖结果值, 就只能使用回调
+    ```JavaScript
+    const fs = require('fs');
+    fs.readFile('./file.txt', (err, doc) => {
+      if (err) {
+        return;
+      }
+      console.log(doc);
     });
-    console.log('A');
-});
-p.then(() => {
-    console.log('B');
-}); // --> A B C
-// 巩固
-const p3 = new Promise(resolve => resolve('A'));
-const p1 = new Promise(resolve => resolve(p3));
-const p2 = new Promise(resolve => resolve('B'));
-p1.then((result) => console.log(result));
-p2.then((result) => console.log(result));
-// 最终输出结果, B A
-    
-// 执行顺序, 先p1, 再p2, 但p1嵌套了一个promise, 多了一层异步
-// 第一步: 执行p1, 执行结果是将p1展开为p3
-// 第二步: 执行p2, 得到解决值'B', 输出
-// 第三步: 执行p3, 得到解决值'A', 输出
-```
-+ Promise决议`thenable`会导致挂起, 无法决议, 提供`竞态机制`来解决
 
-```JavaScript
-// Promise决议一个thenable对象
-function promiseThenable() {
-    return new Promise(resolve => {
-        const thenable = {
-            index: 2,
-            then() {
-                console.log(this.index);
-            }
+    // 假设, readFile的定义是这样的:
+    function readFile(path, callback) {
+      // ...
+      for (let index = 0; index <= 1000; index++) {
+        callback(err, doc);
+      }
+    }
+    ```
+  - 回调函数有时候需要适配错误处理, 就必须要分别提供成功和失败的回调, 陷入回调地狱
+    ```JavaScript
+    /**
+     * 将参数乘以2之后, 再用回调处理它
+     */
+    function double(value, callback) {
+      setTimeout(() => {
+        callback(value * 2);
+      }, 1000);
+    }
+
+    // 问题是, value * 2 也许会出错, 这就还需要提供一个发生错误时介入的回调函数
+    function double(value, successCallback, failureCallback) {
+      setTimeout(() => {
+        try {
+          successCallback(value * 2);
+        } catch (err) {
+          failureCallback(err);
         }
-        resolve(thenable); // 决议一个thenable对象
-    })
-}
-promiseThenable().then(result => {
-    console.log(`result: ${result}`); // 这行代码永远不会执行
-});
-// 由于调用了.then(), 会执行thenable对象中的then方法 --> 2
-// 而Promise的决议值会永远挂住, 后面的代码执行不到, holy shit !!
-async function promiseThenableTest() {
-    const result = await promise(); // 决议值result会永远挂起
-    console.log(`result: ${result}`); // 这行代码也不会执行
-}
-promiseThenableTest(); // 2
+      }, 1000);
+    }
 
-// 别干这些傻事情
-Object.prototype.then = function () { };
-```
-+ Promise只会被决议一次, 因此通过`then`注册的回调函数也只会被调用一次
-+ Promise只会被决议一次, 但如果注册了多个相同的`then`回调, 则回调会执行多次(`这么玩怕不是傻子`)
-+ `resolve()`/`reject()`只能接受`最多一个参数`, 多余的参数会被静默忽略
-+ Promise创建或决议过程中, 出现了任何JavaScript错误, 该错误会被捕获, 并以此拒绝Promise
-```JavaScript
-// Promise创建或决议过程中出现的JavaScript错误会成为拒绝Promise的理由
-const errorPromise = new Promise(resolve => {
-    const constValue = 123;
-    constValue = 456; // 对常量赋值, 导致TypeError
-    resolve(constValue);
-});
-errorPromise
-    .then(result => console.log(result)) // 这行代码不会执行到
-    .catch(error => console.log(error)); // TypeError
-```
-+ `then()`方法接受两个回调, 解决回调和拒绝回调, `catch(callback)`方法是`then(_, callback)`的语法糖
-+ Promise解决了回调的信任危机, 但`如何保证Promise也值得信任`呢? 毕竟决议`thenable`的时候就会挂起: 竞态机制
-```JavaScript
-// Promise避免永远不被决议的方案
-function neverResolved() {
-    // 决议一个thenable
-    const thenable = { then() { console.log(123); } };
+    const successCallback = value => console.log(value);
+    const failureCallback = error => console.err(error);
+
+    double(3, successCallback, failureCallback);
+    ```
++ Promise是为了让异步函数能够在自己完成时, 向开发者发出通知
+  ```JavaScript
+  function double(value) {
     return new Promise(resolve => {
-        resolve(thenable);
+      setTimeout(() => {
+        resolve(value * 2);
+      }, 1000)
     });
-}
-function timeoutPromise(delay) {
-    return new Promise((_, reject) => {
-        setTimeout(() => {
-            reject('Timeout!');
-        }, delay);
-    })
-}
-Promise.race([neverResolved(), timeoutPromise(3000)])
-    .then(result => { console.log(`Promise成功完成决议, 结果: ${result}`) })
-    .catch(err => { console.log(`Promise决议失败, 原因: ${err}`) });
-```
-
-#### Promise.resolve()
-+ 传入非Promise, 非`thenable`的立即值, 会得到用`该值`填充的Promise
-+ 传入Promise, 则会`返回该Promise`
-```JavaScript
-// Promise.resolve()
-const promiseValue1 = new Promise(resolve => resolve(123));
-const promiseValue2 = Promise.resolve(123);
-// promiseValue1和promiseValue2的行为完全一致
-const promiseValue3 = Promise.resolve(666);
-const promiseValue4 = Promise.resolve(promiseValue3);
-console.log(promiseValue3 === promiseValue4); // true
-```
-+ 传入非Promise的`thenable`值, 会试图展开该值, 直到提取出一个具体的非类Promise的最终值
-```JavaScript
-// Promise.resolve()接收thenable对象
-const thenableValue = {
-    then(resolveCallback, rejectCallback) {
-        resolveCallback(123);
-        rejectCallback('Error');
-    }
-}
-thenableValue.then( // thenableValue并不是真正的Promise
-    result => {
-        console.log(result); // 这行代码会执行
-    },
-    error => {
-        console.log(error); // 这行代码也会执行
-    }
-)
-const thenablePromise = Promise.resolve(thenableValue);
-thenablePromise.then(
-    result => console.log(result), // --> 123
-    error => console.log(error) // 不会走到这里
-); // 123!! 成功执行了!! 
-```
-+ 向reject()传入Promise或`thenable`值, 会把`该值`设置为拒绝理由
-
-#### Promise链式流
-+ 对Promise调用其`then()`方法, 都会创建并返回一个新的Promise
-+ `then()`方法的解决回调中的返回值, 会被设置为新创建的Promise的解决值
-```JavaScript
-// Promise链式流
-const chainPromise = Promise.resolve(12);
-chainPromise
+  }
+  double(3)
     .then(value => {
-        console.log(value); // --> 12
+      console.log(value)
+    })
+    .catch(err => {
+      console.error(err);
+    })
+  ```
++ JavaScript线程, 消息队列和事件循环(浏览器)
+  - JavaScript是单线程的, 代码只能按照出现的顺序, 依次执行
+  - 浏览器不是单线程, JavaScript线程只是浏览器众多线程其中之一
+  - JavaScript有些事做不到, 需要委托给浏览器: 网络通信, 延时函数等
+  - 浏览器提供了这些事情的API, 当遇到时, 会交给浏览器单独的线程处理
+  - JavaScript主线程会继续向下执行代码
+  - JavaScript主线程代码执行完毕, 开始轮询消息队列, 取出任务执行
+  - 浏览器线程执行完毕后, 将回调函数推入消息队列, 等待事件循环检索并执行
+  - 用`xmlHttpRequest`和`setTimeout`为例, 图解
+  ```mermaid
+  graph TD
+  subgraph JavaScript
+  A[JavaScript线程] ==>|向下依次执行主线程代码| B[同步代码]
+  B[同步代码] ==>|遇到xmlHttpRequest| C["xhr.onload = function() {}"]
+  C["xhr.onload = function() {}"] ==>|继续向下执行同步代码| E[同步代码]
+  E[同步代码] ==>|遇到setTimeout| F["setTimeout(callback, delay)"]
+  F["setTimeout(callback, delay)"] ==>|继续向下执行同步代码| H[同步代码]
+  H[同步代码] ==>|同步代码执行完毕| I[开启事件循环]
+
+  subgraph Browser
+  D[网络线程]
+  G[延时/计时线程]
+  end
+
+  subgraph TaskQueue
+  J[消息队列]
+  end
+
+  end
+
+  C["xhr.onload = function() {}"] ==>|委托给浏览器网络线程| Browser
+  F["setTimeout(callback, delay)"] ==>|委托给延时线程| Browser
+  I[开启事件循环] ==>|轮询消息队列, 从中取出任务执行| TaskQueue
+  Browser ==>|执行完毕, 将回调推入消息队列| TaskQueue
+
+  style Browser fill:#EBCDCC
+  style TaskQueue fill:#EBCDCC
+  ```
+***
+**补充说明**:
++ 通常将JavaScript主线程上一直执行到底的代码成为同步代码
++ 将需要委托给浏览器执行的代码, 称之为异步代码
++ 异步代码的回调函数最终由其他线程执行完毕后推入消息队列
++ 如果过早推入, 也要等到JavaScript主线程同步代码执行完毕之后, 再开始处理消息队列
+```JavaScript
+for (let index = 0; index < 100; index++) {
+  console.log(index);
+}
+
+setTimeout(console.log, 0, '最后执行');
+
+for (let index = 101; index < 200; index++) {
+  console.log(index);
+}
+```
+***
++ Promise的一些重要概念(暂时不考虑`async`/`await`)
+  - Promise的执行函数是同步执行的, 执行函数: 传入`new Promise`的函数
+  ```JavaScript
+  console.log(1);
+  new Promise(resolve => {
+    console.log(2);
+    resolve();
+  });
+  console.log(3);
+  // 1
+  // 2
+  // 3
+  ```
+  - Promise状态是私有的, 除了`resolve/reject`方法, 其他方法无法修改状态
+  ```JavaScript
+  new Promise(() => {}); // 永远挂起
+  ```
+  - Promise的`resolve/reject`是异步代码, 其结果值已经脱离了主线程, 在浏览器内部保存
+  - 想要获取`resolve/reject`的结果值, 只能使用`then`或者`catch`
+  - 通过`then`和`catch`, 浏览器内部会将挂载的回调, 推入消息队列
+  - 可以这么理解: `then`和`catch`是JavaScript同步线程和异步状态的媒介
+  ```JavaScript
+  console.log(1);
+  const p = new Promise(resolve => {
+    resolve(4);
+  });
+  console.log(2);
+  p.then(value => {
+    console.log(value);
+  });
+  console.log(3);
+  ```
+  ```mermaid
+  graph TD
+  subgraph JavaScript
+  A[JavaScript线程] ==>|向下依次执行主线程代码| B["同步代码console.log(1)"]
+  B["同步代码console.log(1)"] ==>|遇到resolve| C["resolve(4)"]
+  C["resolve(4)"] ==>|继续向下执行同步代码| E["同步代码console.log(2)"]
+  E["同步代码console.log(2)"] ==>|遇到then| F["then(callback)"]
+  F["then(callback)"] ==>|继续向下执行同步代码| H["同步代码console.log(3)"]
+  H["同步代码console.log(3)"] ==>|同步代码执行完毕| I[开启事件循环]
+
+  subgraph Browser
+  D[Promise状态管理器]
+  end
+
+  subgraph TaskQueue
+  J[消息队列]
+  end
+
+  end
+
+  C["resolve(4)"] ==>|委托给浏览器内部| Browser
+  F["then(callback)"] ==>|通过then请求结果值| Browser
+  I[开启事件循环] ==>|轮询消息队列, 从中取出任务执行| TaskQueue
+  Browser ==>|已有结果值4, 将then回调推入消息队列| TaskQueue
+
+  style Browser fill:#EBCDCC
+  style TaskQueue fill:#EBCDCC
+  ```
+  ```JavaScript
+  const p = new Promise(resolve => {
+    setTimeout(() => {
+      resolve(1);
+    }, 3000)
+  });
+  p.then(value => {
+    console.log(value);
+  });
+  ```
+  - Promise挂载的`then`回调会按照顺序依次被调用
+  ```JavaScript
+  const p = new Promise(resolve => {
+    resolve(1);
+  });
+  p.then(value => console.log(1, value));
+  p.then(value => console.log(2, value));
+  p.then(value => console.log(3, value));
+  p.then(value => console.log(4, value));
+  // 1 1
+  // 2 1
+  // 3 1
+  // 4 1
+  ```
+  - `then`中如果定义了`return`, 会将该值用`Promise.resolve`包装, 以保证返回的是Promise
+  ```JavaScript
+  const p = new Promise(resolve => resolve(1));
+  p
+    .then(value => value * 2)
+    .then(value => value * 3)
+    .then(value => value * 4)
+    .then(console.log);
+  // 24
+
+  // 例外情况
+  const p = new Promise(resolve => resolve(1));
+  p
+    .then(value => {
+      setTimeout(() => {
         return value * 2;
+      }, 0);
     })
-    .then(value => {
-        console.log(value); // --> 24
-        return value * 2;
-    })
-    .then(value => {
-        console.log(value); // --> 48
+    .then(console.log); // undefined
+  
+  // 修正
+  const p = new Promise(resolve => resolve(1));
+  p
+    .then(value => new Promise(resolve => {
+      setTimeout(resolve, 0, value * 2);
+    }))
+    .then(console.log); // 2
+  ```
+  - Promise创建过程中出现的任何错误, 都会导致该Promise以此理由被拒绝
+  - 基于上述原因: 无法使用`try...catch`同步捕获`reject`的错误
+  ```JavaScript
+  try {
+    new Promise((_, reject) => {
+      throw new Error('Not Promise Error');
+      reject(new Error('Promise Error'));
+    }).catch(err => {
+      console.log(err); // Error: Not Promise Error
     });
-```
-+ 如果解决回调中没有显示的返回值, 则会隐式的返回`undefined`
-+ Promise链中任意位置出错, 则下个Promise的拒绝回调中的返回值会被设置为再下一个Promise的完成值
-```JavaScript
-// then回调中出现的错误无法被同一个then中的rejectCallback捕获
-const thenCatchPromise = new Promise(resolve => resolve(123));
-thenCatchPromise.then(
-    result => {
-        throw new TypeError('error'); // then回调中抛出了错误
-        console.log(result); // 永远无法执行到
-    },
-    error => {
-        console.log(error); // 永远无法执行到, 无法捕获then中的错误!!!
+  } catch (err) {
+    console.log(err); // 不会捕获到
+  }
+  ```
++ Promise静态方法:
+  - `Promise.resolve()`: 立即获得一个解决的Promise, 详情参见以下代码
+  ```JavaScript
+  // Promise.resolve()其实和以下代码是一样的, 没啥区别
+  new Promise(resolve => {
+    resolve();
+  });
+
+  // Promise.resolve幂等: Promise.resolve如果传入Promise, 则直接返回
+  const p1 = Promise.resolve();
+  const p2 = Promise.resolve(p1);
+  console.log(p1 === p2); // true;
+
+  // Promise.resolve()即使传入错误, 也会得到一个被解决的Promise, 解决值是错误
+  const p = Promise.resolve(new Error('111'));
+  console.log(p); // Promise {<resolved>: Error: 111
+
+  // Promise.resolve只关心第一个参数, 多余的参数会被忽略
+  ```
+  - `Promise.reject`: 立即获得一个拒绝的Promise, 详情参加以下代码
+  ```JavaScript
+  // 如果传入Promise, 则返回拒绝的Promise, 拒绝值是该Promise
+  const p1 = Promise.resolve();
+  const p2 = Promise.reject(p1);
+  console.log(p2); // Promise {<rejected>: Promise}
+  ```
+  - `Promise.all`: 传入数组, 将每个值用`Promise.resolve`包装
+  - `Promise.race`: 传入数组, 将每个值用`Promise.resolve`包装
++ `thenable`对象
+  - `thenable`对象指的是有`then`方法的对象
+  - Promise不能决议`thenable`对象, 这会导致Promise永远挂起, 且会有奇怪的bug
+  ```JavaScript
+  const resolveThenable = () => new Promise(resolve => {
+    const thenable = {
+      index: 1,
+      then() {
+        console.log(this.index);
+      }
+    };
+    resolve(thenable);
+  });
+  resolveThenable().then(console.log); // Promise<Pending> 永远挂起
+  // 1 thenable中的then方法会被执行
+  ```
+  - `Promise.resolve`传入`thenable`对象, 会试图展开, 不理解就算了, 我也不理解
+  ```JavaScript
+  const thenable = {
+    then(success, error) {
+      success(123);
+      error(456);
     }
-).then(null, error => {
-    console.log(error); // 可以捕获到, 因为前一个then方法最终也会返回一个Promise
-});
-// 第一个then中的拒绝回调之所以无法捕获,
-// 是因为拒绝回调只会在Promise被拒绝时调用, 
-// 但Promise本身已被解决
-// 第二个then中的拒绝回调能捕获到错误,
-// 是因为第一个then最终也会返回一个Promise,
-// 而该Promise中出现了错误, 因此用该错误拒绝了该Promise
-```
-+ 如果`then()`方法没有显示提供拒绝回调函数, 则会有一个默认的拒绝回调, 将错误直接抛出
-```JavaScript
-// 默认的拒绝回调
-const defaultErrorCallback = Promise.resolve(new TypeError('Error'));
-defaultErrorCallback.then(
-    result => { console.log(result) },
-    // 默认的错误回调: error => { throw error; }
-);
-// 默认的拒绝回调只是简单的继续将错误抛出, 不进行任何处理
-```
-+ 如果`then()`方法没有显示提供解决回调函数, 则会有一个默认的解决回调, 将解决值直接返回
-```JavaScript
-// 默认的解决回调
-const defaultResolveCallback = Promise.resolve(12);
-defaultResolveCallback.then(
-    // 默认的解决回调: result => { return result; },
-);
-// 默认的解决回调只是简单的继续将值返回, 不进行任何处理
-```
-+ 无穷无尽的错误: Promise链末尾加上`catch`, 可以捕获前面的错误, 但`如果catch本身出现了错误呢`?
-```JavaScript
-// 出错的Promise链式流
-const errorChainPromise = Promise.resolve(12);
-errorChainPromise
-    .then(value => {
-        console.log(value); // --> 12
-        throw new TypeError('Error'); // 抛出错误
-    })
-    .then(null, error => {
-        console.log(error); // TypeError: Error
-        return 42;
-    })
-    .then(value => {
-        console.log(value); // --> 42, 上一步拒绝回调中的返回值
-    });
-```
+  };
+  Promise.resolve(thenable).then(console.log, console.log); // 123
+  ```
++ 异步函数: `async`/`await`
+  - 使用`async`修饰的函数被称为异步函数, 异步函数总是返回Promise
+  - 异步函数会把返回值用`Promise.resolve`包装, 如果没有返回值, 加不加`async`都一样
+  - 异步函数中出现任何错误, 函数都会返回一个被拒绝的Promise, 拒绝理由是该错误
+  ```JavaScript
+  console.log(1);
+  const log = () => console.log(2);
+  async function method() {
+    log();
+    console.log(3);
+  }
+  method();
+  console.log(4);
+  // 1
+  // 2
+  // 3
+  // 4
 
-#### Promise.all([...]) 
-+ 返回一个Promise
-+ 数组参数可以是`Promise/thenable/立即值`, 每个值都会通过`Promise.resolve()`过滤
-+ 其`解决值也是一个数组`, 由传入的Promise的解决值组成, `顺序一致`
-+ 传入的Promise只要有一个被拒绝, 整个`Promise.all`就会立即以该拒绝值被拒绝, 并丢弃其他所有结果
-+ 良好的编码规范, 为每个传入`Promise.all`的Promise关联一个拒绝处理函数
-+ 如果传入空数组, `Promise.all`则会立即完成
+  async function method() {
+    let value = 1;
+    value();
+  }
+  method().catch(() => console.log('哦豁')); // 哦豁
+  ```
+  - `await`暂停异步函数的执行, 等待Promise结果值
+  - `await`暂停的是异步函数内部位于`await`后面的代码
+  - `await`不会阻止异步函数外部的同步代码
+  ```JavaScript
+  const p1 = async () => {
+    console.log(await Promise.resolve(1));
+  }
 
-#### Promise.race([...])
-+ 返回一个Promise
-+ 数组参数可以是`Promise/thenable/立即值`, 立即值没多大意义, 因为立即值会立刻胜出
-+ 数组参数中的任何一个Promise决议完成, 整个`Promise.race`也将以该决议值决议完成 
-+ 如果传入空数组, `Promise.race`永远不会决议
+  const p2 = async () => {
+    console.log(await 2);
+  }
 
-#### 并发迭代
-+ 有时需要在一列Promise中`迭代`, 并对每个Promise都执行某个任务
-+ 如果每个Promise执行的任务是同步的, 可以使用`map()`, `forEach()`等
-+ 如果任务是异步的, 原生的同步方法就无法使用, 参见一个map的示例代码
-```JavaScript
-// 一个异步的map()工具, 接受Promise数组, 外加一个在每个值上运行的函数
-if (!Promise.map) {
-    Promise.map = function (promises, runTask) {
-        return Promise.all(
-            promises.map(promise => {
-                return new Promise(resolve => {
-                    runTask(promise, resolve);
-                })
-            })
-        );
-    }
-}
-const mapPromise1 = Promise.resolve(12);
-const mapPromise2 = Promise.resolve(24);
-const mapPromise3 = Promise.reject('Error');
-Promise.map(
-    [mapPromise1, mapPromise2, mapPromise3],
-    (promise, r) => {
-        Promise.resolve(promise)
-            .then(value => {
-                r(value * 2);
-            }, r);
-    }).then(values => {
-        console.log(values);
-    });
-```
+  const p3 = async () => {
+    console.log(3);
+  }
 
-#### Promise局限性
-+ 顺序错误处理: 除非显示为链上每个Promise指定错误处理程序, 否则最后一个`catch`无法确定来自哪个Promise
-+ Promise只能有一个完成值或一个拒绝理由 , 如果需要多个, 可以使用`Promise.all`包裹
-+ Promise只能被决议一次, 决议完后之后, 永远不可再变
-+ Promise无法被取消
+  p1();
+  p2();
+  p3();
 
-#### 补充小知识
+  // 3
+  // 1
+  // 2
+  ```
+***
+**总结**
++ 异步函数中真正起作用的是`await`, 没有`await`的异步函数和普通函数基本没区别
++ 异步函数遇到`await`时, 首先暂停并记录, `await`后面的代码也会挂起
++ 异步函数外部的代码会继续执行下去
++ 等到`await`等待的值可用了, 浏览器会将该值推入消息队列, 并恢复异步函数的执行
 
-```JavaScript
-// 如果then()中需要执行一些异步操作然后再返回, 应该怎样处理呢?
-chainPromise
-    .then(value => {
-        console.log(value); // --> 12
-        setTimeout(() => {
-                value = value * 2;
-        }, 3000);
-        return value;
-    })
-    .then(value => {
-        console.log(value); // --> 12 并没有翻倍, 因为setTimeout
-    });
-    // 正确的处理方式
-chainPromise
-    .then(value => {
-        console.log(value); // --> 12
-        return new Promise(resolve => {
-            setTimeout(() => {
-                value = value * 2;
-                resolve(value);
-            }, 3000);
-        })
-    })
-    .then(value => {
-        console.log(value); // --> 24
-    });
-```
-
-****
-**[返回主目录](../readme.md)**
+***

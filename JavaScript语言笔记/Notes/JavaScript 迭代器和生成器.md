@@ -359,3 +359,34 @@
 
 **小知识**: `async`/`await`借鉴了生成器函数可以暂停恢复的特性, 可以说`async`/`await`就是对Promise+生成器的这套实现进行了规范化
 ***
+
++ `for...await`循环: 间隔固定时间输出值
+  ```JavaScript
+  async function *generate(min, max, delay) {
+    for(let index = min; index <= max; index++) {
+      yield await new Promise(resolve => setTimeout(resolve, delay, index));
+    }
+  }
+
+  async function start() {
+    for await (const item of generate(1, 10, 1000)) {
+      console.log(item);
+    }
+  }
+
+  start();
+  ```
+
+***
+**补充**: 间隔输出的另一个示例:
+```JavaScript
+const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));
+
+(async () => {
+  for (let index = 0; index < 10; index++) {
+    console.log(index);
+    await sleep(1000);
+  }
+})()
+```
+***

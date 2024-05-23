@@ -300,3 +300,252 @@
 ***
 
 #### Web组件
++ Web组件用于增强DOM的行为, 规范比较混乱, 本文档只针对于Chrome浏览器下的实现
++ Web组件主要包含三个部分的内容: HTML模板, 影子DOM和自定义元素
++ HTML模板, 主要使用`<template>`标签创建, 主要的特点有
+  - 使用该标签包裹的HTML结构会被解析为DOM树, 但是不会渲染到页面
+  - CSS选择器, 元素查找API等, 都无法选取到该标签内的内容
+  - `<template>`标签包裹的HTML片段实际上存在于`DocumentFragment`中
+  - 通过`<template>`元素的`content`属性, 可以取到`DocumentFragment`的引用
+  - 取到引用之后, 可以使用`appendChild`等方法, 添加到主DOM树中, 并渲染
+  - 为保持模板的通用性, 可以使用`document.importNode`深复制, 再添加
+  - `<template>`标签内可以包含`<script>`脚本
+  - `template`的基本用法
+  ```html
+  <template>
+    <p>Hello, World</p>
+  </template>
+  <script>
+    const p = document.querySelector('p');
+    const template = document.querySelector('template').content;
+    const tp = template.querySelector('p');
+    console.log(p, tp); // null <p>...</p>
+    document.body.appendChild(document.importNode(template, true));
+  </script>
+  ```
+  - `template`嵌入脚本内容
+  ```html
+  <template>
+    <script>console.log('Hello, World')</script>
+  </template>
+  <script>
+    const template = document.querySelector('template').content;
+    document.body.appendChild(document.importNode(template, true));
+    // Hello, World
+  </script>
+  ```
+***
+**注解**: `template`的优点是可以组合一个可复用的模板, 缺点是:
++ 除了内联样式, 无法使用独立的CSS样式表, 只能使用全局CSS样式表, 这会影响到全局的其他元素
++ 模板不能像前端框架那样, 提供一个简单的自定义标签来使用, 渲染时自动将自定义标签替换为模板内容
++ 没有自定义标签, 也就不能使用自定义的属性
+***
++ 影子DOM, 和`<template>`有相似的地方, 也是定义了一个实际的DOM结构, 具有以下特点
+  - 影子DOM必须附着到某个实际的DOM元素上, 不能单独存在, 这个实际的DOM元素被称为影子宿主
+  - 影子DOM的内容会直接渲染到页面上, 且其优先级高于影子宿主, 因此会替换掉影子宿主的内容
+  - 影子DOM如果提供了插槽`<slot>`, 影子宿主的内容将不会被替换, 而是渲染到插槽中
+  - 影子DOM可以提供具名插槽`<slot name="xxx">`, 则影子宿主上`slot="xxx"`的元素会被渲染到对应的插槽中
+  - 影子DOM可以封装CSS规则, 或者提供单独的`<style>`样式表, 该样式表只在影子DOM中生效
+  - 影子DOM中的事件会渗透到影子宿主上, 这被称为事件重定向
+  - 使用`attachShaow`附着影子DOM, 其参数是一个对象, 必须至少包含`mode`属性:
+    - `mode`值为`open`: 可以通过影子宿主的`shadowRoot`属性访问到影子DOM
+    - `mode`值为`closed`: 影子DOM无法访问到
+  - 创建影子DOM
+  ```html
+  <div>
+    <p>Hello, World</p>
+  </div>
+  <script>
+    const div = document.querySelector('div');
+    div.attachShadow({ mode: "open" }); // 如果设置为closed, 下面的代码将不会成功
+    div.shadowRoot.innerHTML = `
+      <p>Shadow DOM</p>
+    `;
+    // 页面上实际会渲染出 Shadow DOM
+  </script>
+  ```
+  - 插槽`slot`
+  ```html
+  <div>
+    <p>Hello, World</p>
+  </div>
+  <script>
+    const div = document.querySelector('div');
+    div.attachShadow({ mode: "open" }); // 如果设置为closed, 下面的代码将不会成功
+    div.shadowRoot.innerHTML = `
+      <p>Shadow DOM</p>
+      <p><slot></slot></p>
+    `;
+    // 页面上实际会渲染出 Shadow DOM 以及 Hello, World
+  </script>
+  ```
+  - 具名插槽`<slot name="xxx">`
+  ```html
+  <div>
+    <p slot="slot1">Hello, World 1</p>
+    <p slot="slot2">Hello, World 2</p>
+  </div>
+  <script>
+    const div = document.querySelector("div");
+    div.attachShadow({ mode: "open" });
+    div.shadowRoot.innerHTML = `
+      <p>Shadow DOM</p>
+      <p><slot name="slot1"></slot></p>
+      <p><slot name="slot2"></slot></p>
+    `;
+  // 页面上实际会渲染出 Shadow DOM , Hello, World 1 以及 Hello, World 2
+  </script>
+  ```
+  - 影子DOM和`template`一起使用
+  ```html
+  <div>
+    <p slot="slot1">Hello, World 1</p>
+    <p slot="slot2">Hello, World 2</p>
+  </div>
+  <!-- 创建一个模板作为影子DOM的内容 -->
+  <template>
+    <p class="red">Shadow DOM</p>
+    <p><slot name="slot1"></slot></p>
+    <p><slot name="slot2"></slot></p>
+    <style>
+      .red { color: red; }
+    </style>
+  </template>
+  <script>
+    const div = document.querySelector("div");
+    div.attachShadow({ mode: "open" });
+    div.shadowRoot.appendChild(document.querySelector('template').content);
+    // 页面上实际会渲染出 Shadow DOM(红色) , Hello, World 1 以及 Hello, World 2
+  </script>
+  ```
+***
+**注解**: 影子DOM的优点是:
++ 提供了替换影子宿主的模板
++ 使用插槽丰富化渲染
++ 可以使用独立的CSS样式表
+缺点是: 
++ 依然无法提供一个单独的自定义标签
++ 没有可配置的自定义属性
+***
++ 自定义元素, 通过JavaScript定义并创建自定义元素, 具有如下的特点和要求
+  - 创建的自定义元素必须有一个实体类定义, 该类必须继承`HTMLElement`
+  - 使用`customElement.define`方法注册自定义元素的标签和实体类
+  - 创建的自定义元素名称必须具有一个`-`连字符
+  - 自定义元素的生命周期方法, 以下方法需要在实体类中实现
+    - `constructor`: 创建元素实例, 或将已有DOM元素升级为自定义元素时调用
+    - `connectedCallback`: 将自定义元素添加到DOM时调用
+    - `disconnectedCallback`: 将自定义元素从DOM中移除时触发
+    - `attributeChangedCallback`: **可观察属性**的值发生变化时调用, 初始化时也会调用
+  - 自定义元素的属性操作方法, 自定义元素既是DOM, 也是JavaScript对象, 因此需要对二者进行同步
+    - `static get observedAttributes`: 静态方法, 返回字符串数组, 是一组**可观察属性**
+    - `get/set 属性值`: 访问器方法, 对此需要调用自定义元素的`get/setAttribute`同步
+  - 一个简单的自定义元素, 内联小圆圈, 支持配置背景色和大小
+  ```JavaScript
+  class InlineCircle extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    /**
+    * 自定义元素被添加到DOM中时调用该方法
+    */
+    connectedCallback() {
+      // 设置默认的样式
+      this.style.display = "inline-block";
+      this.style.borderRadius = "50%";
+      this.style.border = "1px solid black";
+
+      // 加上if, 避免样式被覆盖, 因为这里的代码比attributeChangedCallback后执行
+      if (!this.style.width || !this.style.height) {
+        this.style.width = "0.8em";
+        this.style.height = "0.8em";
+      }
+    }
+
+    /**
+    * 返回可观察的属性, 这里是小圆圈半径和背景色
+    */
+    static get observedAttributes() {
+      return ["radius", "color"];
+    }
+
+    /**
+    * 可观察属性的值发生变化时, 调用该方法
+    * @param {string} name
+    * @param {any} oldValue 变化前的属性值
+    * @param {any} newValue 变化后的属性值
+    */
+    attributeChangedCallback(name, oldValue, newValue) {
+      switch (name) {
+        case "radius":
+          this.style.width = newValue;
+          this.style.height = newValue;
+          break;
+        case "color":
+          this.style.backgroundColor = newValue;
+          break;
+        default:
+          break;
+      }
+      console.log(`属性${name}从${oldValue}变化为${newValue}`);
+    }
+
+    // ============= 以下是访问和赋值属性时, 需要同步到DOM上的操作 =============
+
+    get radius() {
+      return this.getAttribute("radius");
+    }
+
+    set radius(value) {
+      this.setAttribute("radius", value);
+    }
+
+    get color() {
+      return this.getAttribute("color");
+    }
+
+    set color(value) {
+      this.setAttribute("color", value);
+    }
+  }
+  customElements.define("inline-circle", InlineCircle);
+  ```
+  - 在HTML中, 可以这么使用
+  ```html
+  <inline-circle radius="20px" color="red"></inline-circle>
+  <inline-circle radius="30px" color="green"></inline-circle>
+  <inline-circle radius="40px" color="blue"></inline-circle>
+  <!-- 将会看到依次排列的三个从小到大的圆圈, 颜色依次为红绿蓝, 大小依次是20, 30, 40 -->
+  ```
+  - `is`属性指定元素为自定义元素, 前提是自定义元素的实体类必须继承一个元素类, 而不是`HTMLElement`
+  ```JavaScript
+  class InlineCircle extends HTMLDivElement { /** 省略 */ }
+  customElements.define("inline-circle", InlineCircle, { extends: 'div' });
+  ```
+  - 在HTML中可以这么用, 效果和上面的例子一样
+  ```html
+  <div is="inline-circle" radius="20px" color="red"></div>
+  <div is="inline-circle" radius="30px" color="green"></div>
+  <div is="inline-circle" radius="40px" color="blue"></div>
+  ```
+  - 自定义元素升级, 使用`upgrade`方法
+  - 自定义元素, 影子DOM和`template`可以组合使用, 达到最佳效果, 以下是简单的代码示意
+  ```html
+  <template>
+    <!-- 模板内容 -->
+  </template>
+  <script>
+    const template = document.querySelector('template').content;
+    const documentFragment = document.createDocumentFragment();
+    documentFragment.append(template);
+    class InlineCircle extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: "open" });
+        this.shadowRoot.append(documentFragment.cloneNode(true));
+      }
+      // ...省略
+    }
+    customElements.define("inline-circle", InlineCircle);
+  </script>
+  ```

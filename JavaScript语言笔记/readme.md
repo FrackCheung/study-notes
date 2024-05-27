@@ -1,6 +1,7 @@
 #### JavaScript概念深入
 
 + JavaScript 基础概念整合
+  + [JavaScript 基础](./Notes/JavaScript%20基础.md)
   + [JavaScript 变量和数据类型](./Notes/JavaScript%20变量和数据类型.md)
   + [JavaScript 语法和强制类型转换](./Notes/JavaScript%20语法和强制类型转换.md)
   + [JavaScript 作用域和垃圾回收](./Notes/JavaScript%20作用域和垃圾回收.md)

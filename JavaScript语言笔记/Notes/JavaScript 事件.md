@@ -155,21 +155,20 @@ btn.dispatchEvent(mouseEvent);
 ```
 + 模拟键盘事件
 ```JavaScript
-const input = document.querySelector('input');
-input.addEventListener('keydown', event => input.value = event.code);
-const keyboardEvent = new KeyboardEvent('keydown', {
+window.addEventListener("keydown", event => console.log(event.code));
+const keyboardEvent = new KeyboardEvent("keydown", {
   bubbles: false,
   cancelable: false,
-  code: 'KeyG',
+  code: "KeyG",
   ctrlKey: false,
   metaKey: false,
   shiftKey: false,
   altKey: false,
   location: 0,
-  repeat: 0
+  repeat: 0,
 });
-input.dispatchEvent(keyboardEvent);
-// true
+window.dispatchEvent(keyboardEvent);
+// KeyG
 ```
 ***
 **注解**: 键盘事件现在使用`code`属性获取键盘的按键码, 使用`key`属性获取对应的字符

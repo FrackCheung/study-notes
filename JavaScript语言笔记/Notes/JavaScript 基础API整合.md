@@ -7,6 +7,7 @@
 - [浏览器通知](#浏览器通知)
 - [页面可见性](#页面可见性)
 - [计时和随机数](#计时和随机数)
+- [工作线程](#工作线程)
 ***
 #### 跨上下文消息
 + 使用`postMessage`方法和`message`事件监听交互
@@ -345,4 +346,72 @@ window.addEventListener('message', event => {
   ```JavaScript
   const id = crypto.randomUUID();
   console.log(id); //4d784ad1-4309-46ae-930b-30ccfe95ef0a
+  ```
+
+#### 工作线程
++ 用于单独开辟一个独立线程, 执行高性能计算
++ 工作线程只能用于执行计算, 不能操作DOM和页面视图
++ 工作线程的执行逻辑单独存放在一个js文件中
++ 工作线程的具体使用
+  - 使用`new Work`构造函数, 参数为js文件
+  - 使用`postMessage`互相发送数据, 存在`data`属性中
+  - 使用`onmessage`互相监听数据, 存在`data`属性中
++ 工作线程中没有`window`对象, 应该使用`self`
++ 工作线程代码: 单独的js文件
+  ```JavaScript
+  // Worker.js
+  // self是工作线程中的对象, 类似于window
+
+  /**
+   * 耗时的操作, 放到工作线程Worker.js中
+   * @param {T} data 需要使用的数据, 通常是从主页面传入
+   * @returns {M} 执行的结果
+   */
+  const yourTimeConsumingMethod = (data) => {
+    // ...耗时代码, 运行完之后, 得到结果
+    return `结果`;
+  };
+
+  /**
+   * 监听主页面发送过来的数据, 保存在事件参数的data属性中
+   * @param {MessageEvent} event 
+   */
+  self.onmessage = (event) => {
+
+    const receivedData = event.data;
+
+    console.log(`接收到主页面发送的数据: ${receivedData}`)
+
+    // 接收到数据后, 开始进行高耗时操作
+    const result = yourTimeConsumingMethod(receivedData);
+
+    // 拿到结果后, 将结果发回给主页面
+    self.postMessage(result);
+  };
+  ```
++ 主页面的代码: 构造工作线程
+  ```JavaScript
+  // index.js
+  // 创建工作线程
+  const worker = new Worker('./Worker.js');
+
+  // 向工作线程发消息
+  worker.postMessage('数据');
+
+  /**
+   * 接受工作线程发来的消息
+   * @param {MessageEvent} event 
+   */
+  worker.onmessage = (event) => {
+    const receivedData = event.data;
+    console.log(`接收到工作线程发送的数据: ${receivedData}`);
+
+    // 终止工作者线程
+    worker.terminate();
+  };
+  ```
++ 输出结果
+  ```bash
+  $ 接收到主页面发送的数据: 数据
+  $ 接收到工作线程发送的数据: 结果
   ```

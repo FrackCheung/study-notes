@@ -229,7 +229,7 @@ window.addEventListener('message', event => {
   element.addEventListener("dragenter", event => event.preventDefault());
 
   // 正常监听drop事件
-  element.addEventListener("dragenter", event => { /** 实现代码 */ });
+  element.addEventListener("drop", event => { /** 实现代码 */ });
   ```
 + 拖动过程中的数据传递: `dataTransfer`
   - 在拖动元素的事件回调中, 使用`event.dataTransfer.setData`设置数据

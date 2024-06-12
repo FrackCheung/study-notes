@@ -1,3 +1,10 @@
++ [总目录](../readme.md)
+***
+- [Cookie](#cookie)
+- [sessionStorage](#sessionstorage)
+- [localStorage](#localstorage)
+- [indexedDB](#indexeddb)
+***
 #### Cookie
 + Cookie最初用于在客户端存储会话信息
 + Cookie最初是由服务器在响应头中指定`Set-Cookie`来存储信息
@@ -178,24 +185,230 @@ window.addEventListener('storage', event => {
 + indexedDB是事务型数据库, 允许存储和检索用键索引的对象
 + indexedDB不需要网络连接, 在线和离线状态均可使用
 + indexedDB的操作都是异步的
++ indexedDB遵守同源策略
 + indexedDB一般遵循以下的使用过程:
   - 打开或创建数据库
-  - 在数据库中创建一个`对象存储`
+  - 在数据库中创建一个`对象仓库`(Object Store)
+  - 创建索引
   - 启动`事务`, 通过事务来执行数据库操作, 如添加/获取数据等
 ***
-**注解:** indexedDB的概念繁多, 很多概念需要结合示例才能理解, 我们假设有如下的数据, 我们的数据库将会用来保存这些数据
+**注解1:** 对象仓库: 指的就是可以存放数据的仓库, 类似于MySQL的表, 一个数据库可以有多个对象仓库
+
+**注解2:** indexedDB的概念繁多, 很多概念需要结合示例才能理解, 我们假设有如下的数据, 我们的数据库将会用来保存这些数据
 ```JavaScript
-const students = [
-  { name: '张三', id: '070501', sex: 'male', birth: '2000-06-15' },
-  { name: '李四', id: '070502', sex: 'female', birth: '2000-09-23' },
-  { name: '王五', id: '070503', sex: 'male', birth: '2000-03-17' }
+const studentsData = [
+  { name: '张三', id: '070501', sex: 'male', tel: '112233' },
+  { name: '李四', id: '070502', sex: 'female', tel: '445566' },
+  { name: '王五', id: '070503', sex: 'male', tel: '778899' }
 ];
 
 // 数据库的名称固定
 const dbName = 'students';
 ```
 ***
-+ 打开或创建数据库, 异步, 需要监听`onerror`和`onsuccess`事件
++ 数据库操作: (1) 打开或创建数据库
+  - 调用indexedDB的`open`方法
+  - `open`方法返回打开/创建的请求实例
+  - 需要监听请求实例的`onerror`和`onsuccess`方法获取结果
+  - 事件`event`参数的`target`属性均指向请求实例
+  - 如果成功, 可以通过`event.target.result`获取数据库实例
 ```JavaScript
-
+const request = indexedDB.open(dbName, 1);
+request.addEventListener('error', event => {
+  console.log(`数据库错误: ${event.target.errorCode}`);
+});
+request.addEventListener('success', event => {
+  // 数据库实例
+  const db = event.target.result;
+});
 ```
+***
+**注解1:** `open`方法的第二个参数是数据库版本, 这个概念不好理解
+
+**注解2:** 理解数据库的版本
++ 数据库的版本, 确定了该数据库的对象仓库, 以及存储的结构, 统称数据库模式
++ `open`方法中的数据库版本参数可以省略, 但是要分两种情况说明:
+  - 对于新建数据库, 省略参数, 默认会使用1
+  - 对于打开已有数据库, 省略参数, 则默认使用该数据库的版本
++ 数据库版本涉及到一个重要事件`onupgradeneeded`, 以下情况会触发:
+  - 新建数据库, 数据库版本默认传1, 会强制触发该事件
+  - 打开已有数据库, 但传入了比该数据库版本更高的版本, 会触发该事件
+  - **PS:** 需要在请求实例上监听该事件
++ **重点:** 修改数据库模式, 必须在`onupgradeneeded`事件中进行
++ 解释:
+  - 新建数据库, 此时数据库模式是空的, 啥都没有, 因此需要创建数据库模式
+  - 打开已有数据库, 但传入高版本, 说明数据库模式需要更新, 因此触发事件
+  - 如果不需要更新数据库模式, 则千万不要传入高版本, 省略版本参数即可
+
+**注解3:** 浓缩的重点
++ 新建数据库, 版本传1, 并在`onupgradeneeded`事件中创建数据库模式
++ 更新已有数据库模式, 传入高版本参数, 并在`onupgradeneeded`事件中更新
++ 无需更新数据库模式, 则版本参数省略
+
+**注解4:** 数据库版本参数只能使用整数, 因为该值会被保存为`unsigned long long`类型, 使用浮点数可能会导致打开数据库失败
+***
++ 数据库操作: (2) 创建对象仓库
+  - 使用数据库实例的`createObjectStore`方法, 两个参数
+  - 参数1: 对象仓库的名称, 类似于MySQL的表名称
+  - 参数2: 配置项, 包含两个属性:
+    + `KeyPath`: 相当于表的主键
+    + `autoIncrement`: 使用自增ID作为主键
+  - 创建对象仓库前, 先判断一下是否存在: `objectStoreNames.contain`
+```JavaScript
+const request = indexedDB.open(dbName, 1);
+request.addEventListener('error', event => {
+  console.log(`数据库错误: ${event.target.errorCode}`);
+});
+request.addEventListener('upgradeneeded', event => {
+  /**
+   * @type {IDBDatabase}
+   */
+  const db = event.target.result;
+
+  if (!db.objectStoreNames.contains('students_table')) {
+    const objectStore = db.createObjectStore('students_table', {
+      keyPath: 'id'
+    });
+  }
+  /**
+   * 或者使用自增ID作为主键
+   * const objectStore = db.createObjectStore('students_table', {
+   *   autoIncrement: true
+   * });
+   */
+});
+```
+***
+**注解1:** 当监听了`onupgradeneeded`事件后, 可以不用再监听`onsuccess`事件了, 同样可以通过事件参数的`event.target.result`取得数据库实例
+
+**注解2:** 数据库主键, 能够唯一标识每一条记录的字段, 一般选取绝对不会重复的字段, 或者给数据库设置一个自增ID
+***
++ 数据库操作: (3) 创建索引
+  - 使用对象仓库的`createIndex`方法, 接收三个参数
+  - 参数1: 索引名称
+  - 参数2: 索引对应的数据的键值
+  - 参数3: 配置项, 常用`unique`, 表示该键值的数据是否包含重复
+  - 索引暂时先不讲述其用途, 放到文档最后再讲
+```JavaScript
+request.addEventListener('upgradeneeded', event => {
+  const db = event.target.result;
+  const objectStore = db.createObjectStore('students_table', {
+    KeyPath: 'id'
+  });
+  objectStore.createIndex('tel', 'tel', { unique: true });
+});
+```
+***
+**注解:** 直到创建索引这一步, 在`onupgradeneeded`事件中需要做的事情已经做完了, 即创建数据库模式, 后续的数据操作, 不能在该事件中执行了
+***
++ 数据库操作: (4) 新增数据
+  - 数据库的操作必须通过事务来完成, 事务使用数据库实例的`transaction`方法
+  - `transaction`参数1: 要操作的对象仓库名称, 多个名称需要使用字符串数组
+  - `transaction`参数2: 操作方式, 包括`readonly`, 以及`readwrite`
+  - 通过事务的`objectStore`方法, 获取对象仓库, 传参为对象仓库名称
+  - 调用对象仓库的`add`方法, 新增数据, 返回值是一个新增请求实例
+  - 监听返回值的`onerror`和`onsuccess`判断是否新增成功
+```JavaScript
+const studentObjectStore = db
+  .transaction('students_table', 'readwrite')
+  .objectStore('students_table');
+studentsData.forEach(data => {
+  studentObjectStore.add(data);
+});
+/**
+ * 监听返回值
+ * const addRequest = studentObjectStore.add(data);
+ * addRequest.onerror = event => {  }
+ * addRequest.onsuccess = event => {  }
+ */
+```
++ 数据库操作: (5) 读取数据
+  - 读取数据也必须通过事务完成
+  - 中间过程和新增数据一致
+  - 使用`get`方法读取数据, 传参是主键的值
+  - `get`方法返回值是一个读取请求实例, 后文不再赘述
+  - 通过事件参数的`event.target.result`属性, 获取读取结果
+```JavaScript
+const readRequest = db
+  .transaction('students_table', 'readonly')
+  .objectStore('students_table')
+  .get('070501');
+readRequest.addEventListener('success', event => {
+  console.log(event.target.result);
+  // { name: '张三', id: '070501', sex: 'male', tel: '112233' }
+});
+```
++ 数据库操作: (6) 游标遍历数据
+  - 仍然要通过事务, 并通过事务的`objectStore`方法拿到对象仓库
+  - 调用对象仓库的`openCursor`方法, 获取游标, 该方法返回游标请求实例
+  - 在游标请求实例的`onsuccess`事件的`event.target.result`中获取游标
+  - 使用游标遍历数据, 游标有如下的关键属性
+    + `key`: 当前记录数据的主键
+    + `value`: 表示了当前的这一条完整记录数据
+  - 使用游标的`continue`方法移动到下一条记录, 该方法会重用事件
+```JavaScript
+const cursorRequest = db
+  .transaction('students_table', 'readonly')
+  .objectStore('students_table')
+  .openCursor();
+cursorRequest.addEventListener('success', event => {
+  const cursor = event.target.result;
+  if (cursor) {
+    console.log(`id: ${cursor.key}`);
+    console.log(`name: ${cursor.value.name}`);
+    console.log(`sex: ${cursor.value.sex}`);
+    console.log(`tel: ${cursor.value.tel}`);
+    cursor.continue();
+  } else {
+    console.log('Done');
+  }
+});
+```
++ 数据库操作: (7) 更新数据
+  - 更新数据也必须通过事务完成
+  - 中间过程和新增数据一致
+  - 使用`put`方法更新数据, 传参新的记录数据, 但主键不能变
+  - `put`方法返回值是一个更新请求实例
+```JavaScript
+const readRequest = db
+  .transaction('students_table', 'readonly')
+  .objectStore('students_table')
+  .put({ name: '张麻子', id: '070501', sex: 'male', tel: '112233' });
+readRequest.addEventListener('success', () => {
+  console.log(`更新成功`);
+});
+```
++ 数据库操作: (8) 删除数据
+  - 删除数据也必须通过事务完成
+  - 中间过程和新增数据一致
+  - 使用`delete`方法删除数据, 传参是主键的值
+  - `delete`方法返回值是一个更新请求实例
+```JavaScript
+const readRequest = db
+  .transaction('students_table', 'readonly')
+  .objectStore('students_table')
+  .delete('070501');
+readRequest.addEventListener('success', () => {
+  console.log(`删除成功`);
+});
+```
++ 数据库操作: (9) 使用索引
+  - 在数据库的创建过程中, 还使用`createIndex`创建了索引
+  - 索引的用处是可以搜索任意字段, 不建立索引的话, 只能使用主键搜索
+  - 和前面一样, 使用事务, 获取对象仓库
+  - 调用对象仓库的`index`方法, 传入创建的索引名称, 获取索引实例
+  - 调用索引实例的`get`方法, 传入索引键对应的值, 返回搜索请求实例
+  - 通过事件参数的`event.target.result`属性, 获取搜索
+```JavaScript
+const indexSearchRequest = db
+  .transaction('students_table', 'readonly')
+  .objectStore('students_table')
+  .index('tel')
+  .get('112233');
+indexSearchRequest.addEventListener('success', event => {
+  console.log(`搜索结果: ${event.target.result || 'NotFound'}`);
+});
+```
+***
+**总结:** 学得会就学, 学不会就TM算了
+***

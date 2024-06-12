@@ -138,7 +138,6 @@ define('myModule', ['require', 'exports'], (require, exports) =>{
 ***
 **注解:** 上述几种模块系统是在ES6模块问世前诞生的, 目前ES6模块的支持程度已经越来越高, 开发者应该尽可能使用ES6模块
 ```json
-// package.json
 {
   "type": "module",
   "scripts": {},

@@ -2,7 +2,7 @@
 ***
 - [跨上下文消息](#跨上下文消息)
 - [文本编码与解码](#文本编码与解码)
-- [文件和Blob](#文件和blob)
+- [文件和Blob](#文件和Blob)
 - [原生拖放](#原生拖放)
 - [浏览器通知](#浏览器通知)
 - [页面可见性](#页面可见性)
@@ -100,29 +100,36 @@ window.addEventListener('message', event => {
     });
     </script>
   ```
-+ 从文件系统中读取文件, 使用`FileReader`, 其实例具有几个方法
++ 文件读取, 使用`FileReader`实例, 实例的方法和说明如下
   - `readAsText(file, encoding)`: 将文件读取为纯文本, 编码参数可选
   - `readAsDataURL(file)`: 读取文件内容的数据URI
   - `readAsBinaryString(file)`: 读取文件每个字符的二进制数据
-  - `readAsArrayBuffer(file)`: 读取文件内容并保存为`ArrayBuffer`类型
+  - `readAsArrayBuffer(file)`: 读取文件内容并保存为ArrayBuffer类型
   - 以上四个方法的结果都保存在实例的`result`属性中
-+ `FileReader`的实例方法是异步的, 会发布几个事件用于跟踪
-  - `progress`: 进度事件, 每50ms执行一次
-  - `error`: 错误事件, 同时实例的`error`属性被赋值, `error`属性是包含`code`属性的一个对象
-  - `load`: 读取完成事件
+  - 以上实例方法是异步的, 监听`load`/`progress`/`error`以获取进度或结果
   ```JavaScript
-  input.addEventListener('change', event => {
+  // 封装Promise风格的读取函数
+  const readText = async file => new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onload = () => resolve(fileReader.result);
+    fileReader.onerror = () => reject('Failed');
+    fileReader.readAsText(file);
+  });
+
+  // 假设选取一个txt文件, 文件内容是Hello
+  input.addEventListener('change', async event => {
     const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onerror = () => console.log(reader.error);
-    reader.onload = () => console.log(reader.result);
-    reader.onprogress = progressEvent => console.log(progressEvent.loaded / progressEvent.total);
-
-    reader.readAsText(file);
+    const content = await readText(file);
+    console.log(content); // Hello
   });
   ```
-+ `FileReaderSync`: 文件读取的同步版本, 只能在Worker线程中使用
+***
+**注解:** 针对于内容为"Hello"的txt文件, 其他几个方法读取的结果:
++ `readAsDataURL(file)`: data:text/plain;base64,SGVsbG8=
++ `readAsBinaryString(file)`: Hello
++ `readAsArrayBuffer(file)`: ArrayBuffer(5)
+***
++ 文件同步读取, 使用`FileReaderSync`实例, 只能在工作线程中使用
   ```JavaScript
   // worker.js
   self.addEventListener('message', event => {
@@ -131,70 +138,79 @@ window.addEventListener('message', event => {
     self.postMessage(result);
   });
   ```
-+ 文件部分读取, 使用`FileReader`的`slice(start, offset)`方法
-  - `slice`方法返回值是一个`Blob`类型的实例
-  - 可以使用`FileReader`读取`Blob`类型的数据
-  - `Blob`类型其实是`File`类型的超类
++ 文件部分读取, 使用`File`实例的`slice(start, offset)`方法
   ```JavaScript
   const file = event.target.files[0];
-  const reader = new FileReader();
-  const blob = file.slice(0, 5); // 部分读取文件
-  reader.onerror = () => console.log(reader.error);
-  reader.onload = () => console.log(reader.result);
-  reader.onprogress = progressEvent => console.log(progressEvent.loaded / progressEvent.total);
-
-  reader.readAsText(blob); // 只会读取出前5个字符
+  const content = await reader.readText(file.slice(0, 3)); // Hel
   ```
-+ Blob对象: 二进制大对象, Blob是对二进制数据的封装
-  - Blob对象有`size`属性和`type`属性
-  - Blob对象有`slice`方法, 可以用于进一步切分数据
-  - `FileReader`可以从Blob中读取数据
-  - `File`其实是`Blob`类型的子类
-  - `Blob`构造函数只接受字符串数组, ArrayBuffer, ArrayBufferViews, 以及其他Blob'
-  - `Blob`构造函数的第二个参数, 可以指定MIME类型
+***
+**注解:** `File`实例的`slice`方法, 返回结果是`Blob`类型
+***
++ Blob: 二进制大对象, 用于存放大量的二进制数据
+  - Blob是构造函数: 可以使用`new Blob`创建Blob对象
+  - `File`是`Blob`的子类, 因此很多`File`的方法属性, 都是从Blob继承的
+  - Blob具有`slice`方法, 具有`size`属性, 具有`type`属性
+  ```JavaScript
+  class File extends Blob
+  ```
+  - `Blob`构造函数接收两个参数:
+    + 参数1: 字符串数组/ArrayBuffer/ArrayBufferViews/其他Blob
+    + MIME类型
   ```JavaScript
   const json = { name: 'zhangsan', age: 18 };
-  console.log(new Blob([JSON.stringify(json, null, 2)])); // { size: 37, type: '' }
+  const jsonStringArray = [JSON.stringify(json, null, 2)];
+  console.log(new Blob(jsonStringArray)); // { size: 37, type: '' }
 
-  const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+  const blob = new Blob(
+    jsonStringArray,
+    { type: 'application/json' }
+  );
   console.log(blob); // { size: 37, type: 'application/json' }
 
-  // 进一步部分读取文件
+  // 切分文件
   const file = event.target.files[0];
-  const reader = new FileReader();
-  const blob = file.slice(0, 5); // 部分读取文件
-  reader.onerror = () => console.log(reader.error);
-  reader.onload = () => console.log(reader.result);
-  reader.onprogress = progressEvent => console.log(progressEvent.loaded / progressEvent.total);
-  reader.readAsText(blob.slice(0, 3)); // 只会读取出前3个字符
+  const blob = file.slice(0, 5);
+  const content = await readText(blob.slice(0, 2)); // He
   ``` 
 ***
-**注解1**: 二进制文件:
-+ 狭义的理解是, 除了纯文本文件以外的文件, 都可以叫做二进制文件
-+ 广义的理解是, 一切文件都是二进制文件, 因为存储的方式是二进制  
+**注解1:** 音频/视频等数据, 无法直接以文本显示, 但数据是由二进制01组成, 这样的数据就被叫二进制数据, 二进制数据通常需要对应的应用程序才能打开
 
-**注解2**: 因此, `Blob`其实可以理解为就是封装了一个数据准备就绪的文件, `File`是`Blob`的子类
+**注解2:** 即使是纯文本数据, 在计算机上依然是由二进制01组成, 因此从广义上来说, 二进制数据其实就泛指一切数据
 ***
-+ Blob URL: 指的是一个引用了`Blob`对象中数据的URL
-  - Blob对象一般的使用用途有保存到本地, 要保存到本地就必须要有一个URL值
-  - 使用`URL.createObjectURL`创建Blob URL, 参数可以是`File`或者`Blob`
-  ```JavaScript
-  const json = { name: 'zhangsan', age: 18 };
++ Blob URL: 指的是一个指向内存中`Blob`对象的URL地址
+  - Blob对象一般的用途是保存文件到本地
+  - 使用`URL.createObjectURL`创建Blob URL, 参数可以是`File`/`Blob`
+  ```TypeScript
+  // 假设从后台接受到了一个软件安装包 installer.exe
+  const blob = await axios('url', { responseType: 'blob' });
 
-  // blob也可以是从接口获取到的后台资源
-  const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
-  const saveJSON = (blob, filename) => {
+  // 保存文件到本地
+  const saveFile = (blob: Blob, filename: string) => {
     const a = document.createElement('a');
-
-    // 如果是图片文件数据, 这里还可以使用img.src = URL.createObjectURL(blob);
     a.href = URL.createObjectURL(blob);
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
-  saveJSON(blob, 'file.json');
+  saveFile(blob, 'installer.exe');
   ```
+***
+**注解1:** 浏览器不允许直接操作磁盘IO, 只能通过文件保存对话框提示用户保存文件, 因此Blob对象只能转为URL地址, 通过a标签访问和保存
+
+**注解2:** 后台直接返回给前端资源URL, 也能实现文件保存, 但这样会暴露服务器的绝对路径, 不符合网络安全, 返回二进制数据是比较稳妥的
+```bash
+# 资源URL的示例
+http://www.fc.com/resource/download/v3.1.2/installer.exe
+```
+
+**注解3:** 针对在线预览的资源, 如音频/视频/图片, 为了确保不暴露服务器绝对路径, 也可以采用传输二进制数据的方式, 前端使用`src`赋值
+```JavaScript
+const img = await axios('url', { responseType: 'blob' });
+const url = URL.createObjectURL(img);
+document.qeuerySelector('img').src = url;
+```
+***
 + 读取拖放文件, 通过`event.dataTransfer.files`获取拖放的文件
   ```JavaScript
   const div = document.querySelector('div');
@@ -229,7 +245,7 @@ window.addEventListener('message', event => {
   element.addEventListener("dragenter", event => event.preventDefault());
 
   // 正常监听drop事件
-  element.addEventListener("drop", event => { /** 实现代码 */ });
+  element.addEventListener("dragenter", event => { /** 实现代码 */ });
   ```
 + 拖动过程中的数据传递: `dataTransfer`
   - 在拖动元素的事件回调中, 使用`event.dataTransfer.setData`设置数据

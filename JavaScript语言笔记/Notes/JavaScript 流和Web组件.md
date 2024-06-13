@@ -33,9 +33,7 @@
   });
 
   // 从流中读取数据
-  console.log(readableStream.locked);
   const reader = readableStream.getReader();
-  console.log(readableStream.locked);
 
   // 一次read, 只会读取一个数据, 所以需要在循环中持续读取
   (async () => {
@@ -94,9 +92,7 @@
     },
   });
 
-  console.log(writableStream.locked);
   const writer = writableStream.getWriter();
-  console.log(writableStream.locked);
 
   (async () => {
     for (const chunk of data) {
@@ -303,9 +299,64 @@
 ***
 **注解**: `pipeTo`方法隐式获取了可读流的读取器, 并且自动开始读取值, 读到一个, 就写入一个
 ***
++ 流编码: 
+  - 将可读流通过`pipeThrough`连接到文本编码流
+  - 文本编码流使用`TextEncoderStream`创建
+  - 用途: 将流中的文本数据, 编码为Uint8Array定型数组
+```JavaScript
+const data = [1, 2, 3];
+const stream = new ReadableStream({
+  start(controller) {
+    for(const item of data) {
+      controller.enqueue(item);
+    }
+  }
+});
+const encodeTextStream = stream.pipeThrough(new TextEncoderStream());
+const reader = encodeTextStream.getReader();
+(async () => {
+  while(true) {
+    const { value, done } = await reader.read();
+    if (done) {
+      break;
+    }
+    console.log(value);
+    // UintArray[49]
+    // UintArray[50]
+    // UintArray[51]
+  }
+})();
+```
++ 流解码: 
+  - 将可读流通过`pipeThrough`连接到文本解码流
+  - 文本编码流使用`TextDecoderStream`创建
+  - 用途: 将流中的Uint8Array数据, 解码为文本数据
+```JavaScript
+const data = [49, 50, 51].map(x => Uint8Array.of(x));
+const stream = new ReadableStream({
+  start(controller) {
+    for(const item of data) {
+      controller.enqueue(item);
+    }
+  }
+});
+const encodeTextStream = stream.pipeThrough(new TextDecoderStream());
+const reader = encodeTextStream.getReader();
+(async () => {
+  while(true) {
+    const { value, done } = await reader.read();
+    if (done) {
+      break;
+    }
+    console.log(value);
+    // 1
+    // 2
+    // 3
+  }
+})();
+```
 
 #### Web组件
-+ Web组件用于增强DOM的行为, 规范比较混乱, 本文档只针对于Chrome浏览器下的实现
 + Web组件主要包含三个部分的内容: HTML模板, 影子DOM和自定义元素
 + HTML模板, 主要使用`<template>`标签创建, 主要的特点有
   - 使用该标签包裹的HTML结构会被解析为DOM树, 但是不会渲染到页面
@@ -424,11 +475,11 @@
   </script>
   ```
 ***
-**注解**:   
+**注解**:
 影子DOM的优点是:
 + 提供了替换影子宿主的模板
 + 使用插槽丰富化渲染
-+ 可以使用独立的CSS样式表
++ 可以使用独立的CSS样式表  
 
 缺点是: 
 + 依然无法提供一个单独的自定义标签

@@ -14,6 +14,9 @@ app.get('/', (_, res) => {
 
 // 连续请求两次根路径, 第二次请求将使用缓存, 304
 ```
+***
+**注解:** 缓存有很多种, 私有缓存, 共享缓存等, 本文档只讨论私有缓存 (单个用户使用的缓存), 并且特指私有缓存下的浏览器缓存
+***
 + 缓存的运作机制1: 常见的`304 Not Modified`
   - 客户端像服务器请求文档或资源, 请求首先到达缓存
   - 缓存检查到本地已经具有了缓存副本, 但不确定是否是最新的
@@ -204,7 +207,7 @@ app.listen(8000, () => {
     setHeaders: res => {
       res.set('Cache-Control', 'no-store');
     }
-  }))
+  }));
   ```
   - 服务器配置`Cache-Control`响应头为`no-cache`资源缓存, 但每次使用都必须和服务器验证
   ```JavaScript
@@ -212,7 +215,15 @@ app.listen(8000, () => {
     setHeaders: res => {
       res.set('Cache-Control', 'no-cache');
     }
-  }))
+  }));
+  ```
+  - 服务器可以配置`Cache-Control`响应头为`private`或`public`, 表示私有/共享缓存
+  ```JavaScript
+  app.use(express.static('static', {
+    setHeaders: res => {
+      res.set('Cache-Control', 'private, max-age=60');
+    }
+  }));
   ```
   - HTML页面配置的`http-equive`, 毫无用处, 别用
   ```HTML

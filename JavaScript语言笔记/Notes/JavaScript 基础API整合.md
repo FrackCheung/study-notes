@@ -250,7 +250,6 @@ document.qeuerySelector('img').src = url;
 + 拖动过程中的数据传递: `dataTransfer`
   - 在拖动元素的事件回调中, 使用`event.dataTransfer.setData`设置数据
   - 在放置元素的事件回调中, 使用`event.dataTransfer.getData`获取数据
-  - 可以调用`event.dataTransfer.setImageData`, 设置拖动过程中的背景图
   ```html
   <img class="from" src="./123.png">
   <img class="to">
@@ -259,14 +258,37 @@ document.qeuerySelector('img').src = url;
     const to = document.querySelector('.to');
     from.addEventListener('dragstart', event => {
       event.dataTransfer.setData('key', event.target.src);
-    })
+    });
     to.addEventListener('drop', event => {
       event.preventDefault(); // 这行代码为了阻止浏览器默认在新窗口中打开拖动的文件或图片
       const url = event.dataTransfer.getData('key');
       event.target.src = url;
-    })
+    });
   </script>
   ```
+  - 从浏览器外部拖动文件时, 通过`drop`事件的`event.dataTransfer.files`获取到文件
+  ```JavaScript
+  const img = document.querySelector("img");
+  img.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    const url = URL.createObjectURL(file);
+    event.target.src = url;
+  });
+  ```
+  - 可以调用`event.dataTransfer.setImageData`, 设置拖动过程中的背景图
+***
+**注解:** 史诗级bug, 上述示例, 如果在控制台打印`event.dataTransfer`或者`event.dataTransfer.files`, 其结果都是空的, 会误认为没有拿到任何文件, 但其实代码会正常工作, 这是Chrome的bug
+```JavaScript
+const img = document.querySelector("img");
+img.addEventListener("drop", (event) => {
+  console.log(event.dataTransfer); // 里面的item, filelist等属性都是空的
+  console.log(event.dataTransfer.files); // 也是空的
+
+  console.log(event.dataTransfer.files[0]); // 可以打印出文件信息
+});
+```
+***
 + 可以设置元素的`draggable`属性, 使其成为可拖动或者不可拖动的
   ```html
   <img src="./123.png" draggable="false">

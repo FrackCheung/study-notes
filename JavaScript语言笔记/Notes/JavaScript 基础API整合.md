@@ -268,12 +268,18 @@ document.qeuerySelector('img').src = url;
   ```
   - 从浏览器外部拖动文件时, 通过`drop`事件的`event.dataTransfer.files`获取到文件
   ```JavaScript
-  const img = document.querySelector("img");
-  img.addEventListener("drop", (event) => {
+  const readFileAsText = async file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('读取失败'));
+    reader.readAsText(file);
+  });
+  const t = document.querySelector("textarea");
+  t.addEventListener("drop", async event => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    const url = URL.createObjectURL(file);
-    event.target.src = url;
+    const content = await readFileAsText(file);
+    t.innerHTML = content;
   });
   ```
   - 可以调用`event.dataTransfer.setImageData`, 设置拖动过程中的背景图
@@ -295,7 +301,9 @@ img.addEventListener("drop", (event) => {
   <div draggable="true"></div>
   ```
 ***
-**注解**: 以上所说的拖动, 都只是能够响应`drag`等事件的场景, 即支持拖动的元素, 可以向其添加拖动监听事件, 实现某些功能, 这和我们理解的带着元素跟着鼠标指针满世界晃悠, 不是一个概念!
+**注解1**: 以上所说的拖动, 都只是能够响应`drag`等事件的场景, 即支持拖动的元素, 可以向其添加拖动监听事件, 实现某些功能, 这和我们理解的带着元素跟着鼠标指针满世界晃悠, 不是一个概念!
+
+**注解2:** 原生拖放只能在http/https通信的页面才能正常使用, 因此要使用拖放功能, 需要服务器支持
 ***
 
 #### 浏览器通知

@@ -307,7 +307,7 @@ img.addEventListener("drop", (event) => {
 ***
 
 #### 浏览器通知
-+ 通知功能只能应用在`https`的页面上
++ 通知功能只能在http/https通信的页面才能正常使用
 + 请求通知权限, 用户一旦拒绝, 除非用户手动重置浏览器设置, 否则无可挽回
   ```JavaScript
   Notification.requestPermission()

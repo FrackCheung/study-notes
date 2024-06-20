@@ -201,37 +201,24 @@
   I ==>|调用read方法读取值| J
   ```
 ***
-**注解1**: 运行上面这个转换流的示例, 控制台会立刻开始打印出读取结果, 并不是等写入完成之后, 才开始读取, 这里用到了两个知识点:
-+ 转换流可以边读边写, 互不影响, 写入数据后, 就可以马上读取到
-+ `await`的作用是暂停函数, 写入函数和读取函数就在不停的暂停/恢复, 二者反复交替
-
-**注解2**: 小总结
+**注解1**: 小总结
 + `ReadableStream`构造函数, 其参数对象的`start`方法必须, 且只执行一次
 + `WritableStream`构造函数, 其参数对象的`write`方法可选, 且反复执行
 + `TransformStream`构造函数, 其参数对象的`transform`方法可选, 且反复执行
 
-**注解3**: 转换流实例自己提供了可读流和可写流, 用于读写数据, 如果已经有了一个可读流, 需要对其进行转换, 然后将结果输出为新的可读流, 需要借助管道流
+**注解2**: 转换流实例自己提供了可读流和可写流, 用于读写数据, 如果已经有了一个可读流, 需要对其进行转换, 然后将结果输出为新的可读流, 需要借助管道流
 ***
-+ 管道流, 将已有的流用管道相连接, 从一个流到另一个流
++ 管道流, 将已有的可读流用管道连接到另一个流
   - 只有可读流才能作为管道的起点, 即可读流才有使用管道的能力
   - `pipeThrough`: 将可读流连接到转换流, 以提供额外的能力
   - `pipeTo`: 将可读流连接到可写流, 将值写入可写流
-  - 只有可读流实例才有这两个方法
   - 可读流连接到转换流
   ```JavaScript
-  // 睡眠函数, 用于间隔时间生成值
-  const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
-
-  // 数据
-  const data = [1, 2, 3, 4, 5];
 
   // 创建初始可读流
   const originReadableStream = new ReadableStream({
-    async start(controller) {
-      for (const chunk of data) {
-        controller.enqueue(chunk);
-        await sleep(Math.random() * 1000);
-      }
+    start(controller) {
+      controller.enqueue(1);
       controller.close();
     },
   });
@@ -258,26 +245,13 @@
     }
   })();
   // 10
-  // 20
-  // 30
-  // 40
-  // 50
   ```
   - 可读流连接到可写流
   ```JavaScript
-  // 睡眠函数, 用于间隔时间生成值
-  const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
-
-  // 数据
-  const data = [1, 2, 3, 4, 5];
-
   // 创建初始可读流
   const originReadableStream = new ReadableStream({
-    async start(controller) {
-      for (const chunk of data) {
-        controller.enqueue(chunk);
-        await sleep(Math.random() * 1000);
-      }
+    start(controller) {
+      controller.enqueue(1);
       controller.close();
     },
   });
@@ -291,25 +265,60 @@
 
   originReadableStream.pipeTo(writeableStream); 
   // 从可读流中接受到数据, 并写入, 写入值: 1
-  // 从可读流中接受到数据, 并写入, 写入值: 2
-  // 从可读流中接受到数据, 并写入, 写入值: 3
-  // 从可读流中接受到数据, 并写入, 写入值: 4
-  // 从可读流中接受到数据, 并写入, 写入值: 5
   ```
 ***
-**注解**: `pipeTo`方法隐式获取了可读流的读取器, 并且自动开始读取值, 读到一个, 就写入一个
+**注解1:** 可写流通常是在`write`方法中执行额外操作
+```JavaScript
+import fs from 'fs';
+import { promisify } from 'util';
+const appendFile = promisify(fs.appendFile);
+const readableStream = new ReadableStream({
+  start(controller) {
+    controller.enqueue('Hello, World');
+    controller.close();
+  }
+});
+const wriableStream = new WritableStream({
+  async write(chunk) {
+    await appendFile('./1.txt', chunk);
+  }
+});
+readableStream.pipeTo(wriableStream);
+```
+
+**注解2:** Node.js提供了内置的`stream`库用于操作流, 并且功能更丰富, 在Node.js平台应该首先使用`stream`
+```JavaScript
+import fs from 'fs';
+import { Readable, Writable } from 'stream';
+const readStream = new Readable({
+  read() { /** */ }
+});
+const writeStream = new Writable({
+  write(chunk) {
+   fs.writeFileSync('2.txt', chunk);  
+  }
+});
+readStream.pipe(writeStream);
+const fileStream = fs.createReadStream('1.txt');
+fileStream.on('data', chunk => readStream.push(chunk));
+```
+
+**注解3:** Node.js的`fs`文件模块提供了专供文件使用的流式API, 涉及到文件流, 应首先使用`fs`
+```JavaScript
+import fs from 'fs';
+const readStream = fs.createReadStream('1.txt');
+const writeStream = fs.createWriteStream('3.txt');
+readStream.pipe(writeStream);
+```
 ***
 + 流编码: 
   - 将可读流通过`pipeThrough`连接到文本编码流
   - 文本编码流使用`TextEncoderStream`创建
   - 用途: 将流中的文本数据, 编码为Uint8Array定型数组
 ```JavaScript
-const data = [1, 2, 3];
 const stream = new ReadableStream({
   start(controller) {
-    for(const item of data) {
-      controller.enqueue(item);
-    }
+    controller.enqueue(1);
   }
 });
 const encodeTextStream = stream.pipeThrough(new TextEncoderStream());
@@ -322,8 +331,6 @@ const reader = encodeTextStream.getReader();
     }
     console.log(value);
     // UintArray[49]
-    // UintArray[50]
-    // UintArray[51]
   }
 })();
 ```
@@ -332,12 +339,9 @@ const reader = encodeTextStream.getReader();
   - 文本编码流使用`TextDecoderStream`创建
   - 用途: 将流中的Uint8Array数据, 解码为文本数据
 ```JavaScript
-const data = [49, 50, 51].map(x => Uint8Array.of(x));
 const stream = new ReadableStream({
   start(controller) {
-    for(const item of data) {
-      controller.enqueue(item);
-    }
+    controller.enqueue(Uint8Array.of(49));
   }
 });
 const encodeTextStream = stream.pipeThrough(new TextDecoderStream());
@@ -350,11 +354,12 @@ const reader = encodeTextStream.getReader();
     }
     console.log(value);
     // 1
-    // 2
-    // 3
   }
 })();
 ```
+***
+**注解:** 流编码和流解码得到的结果依然是可读流
+***
 
 #### Web组件
 + Web组件主要包含三个部分的内容: HTML模板, 影子DOM和自定义元素
@@ -475,13 +480,10 @@ const reader = encodeTextStream.getReader();
   </script>
   ```
 ***
-**注解**:
-影子DOM的优点是:
+**注解**: 影子DOM的特点:
 + 提供了替换影子宿主的模板
 + 使用插槽丰富化渲染
 + 可以使用独立的CSS样式表  
-
-缺点是: 
 + 依然无法提供一个单独的自定义标签
 + 没有可配置的自定义属性
 ***
@@ -549,19 +551,15 @@ const reader = encodeTextStream.getReader();
     }
 
     // ============= 以下是访问和赋值属性时, 需要同步到DOM上的操作 =============
-
     get radius() {
       return this.getAttribute("radius");
     }
-
     set radius(value) {
       this.setAttribute("radius", value);
     }
-
     get color() {
       return this.getAttribute("color");
     }
-
     set color(value) {
       this.setAttribute("color", value);
     }
@@ -586,7 +584,6 @@ const reader = encodeTextStream.getReader();
   <div is="inline-circle" radius="30px" color="green"></div>
   <div is="inline-circle" radius="40px" color="blue"></div>
   ```
-  - 自定义元素升级, 使用`upgrade`方法
   - 自定义元素, 影子DOM和`template`可以组合使用, 达到最佳效果, 以下是简单的代码示意
   ```html
   <template>

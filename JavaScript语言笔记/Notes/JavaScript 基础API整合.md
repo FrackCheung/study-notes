@@ -45,7 +45,48 @@ window.addEventListener('message', event => {
 </script>
 ```
 ***
-**注解**: 源指的是发送者文档所在的协议, 域名, 端口
+**注解1**: 源指的是发送者文档所在的协议, 域名, 端口
+
+**注解2:** 可以在iframe页面中, 直接使用`window.parent`获取父窗口的引用
+```JavaScript
+document.qeuerySelector('button').addEventListener('click', () => {
+  window.parent.postMessage('Hello, World');
+});
+```
+
+**注解3:** 关于`top`, `parent`, `self`
++ 这些都是`window`对象的属性, 用于指代窗口的关系
++ `window.top`: 始终指向最外层窗口
++ `window.parent`: 指向当前窗口的父窗口
++ `window.self`: 指向当前窗口自身, `window.self === window`结果为`true`
+```HTML
+<!-- index.html -->
+<iframe src="./iframe1.html"></iframe>
+
+<!-- iframe1.html -->
+<iframe src="./iframe2.html"></iframe>
+
+<!-- iframe2.html -->
+<iframe src="./iframe3.html"></iframe>
+
+<!-- iframe3.html -->
+<script>
+  console.log(window.self); // iframe3页面的window对象
+  console.log(window.parent); // iframe2页面的window对象
+  console.log(window.parent.parent); // iframe1页面的window对象
+  console.log(window.top); // index.html页面的window对象
+</script>
+```
++ 对于最外层窗口来说, 它的`top`, `parent`, `self`属性是一样的
++ `a`链接打开位置: `_parent`, `_top`, `_self`, `_blank`
+  - 前三个都和上述含义一样, 分别表示父窗口, 最外层窗口, 和自身窗口
+  - `_blank`指新窗口对象, 这和浏览器的新窗口不同, 可能是在新选项卡中打开
+```HTML
+<iframe src="./iframe1.html" target="_blank"></iframe>
+<iframe src="./iframe2.html" target="_self_"></iframe>
+<iframe src="./iframe3.html" target="_parent"></iframe>
+<iframe src="./iframe4.html" target="_top"></iframe>
+```
 ***
 
 #### 文本编码与解码

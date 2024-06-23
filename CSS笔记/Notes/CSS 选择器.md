@@ -435,7 +435,7 @@ a:hover { color: orange; }
 a:active { color: blue; }
 ```
 ***
-**注解:** CSS编写规则的准则
+**注解:** CSS准则
 + 不要使用ID选择器编写规则
 + 不要使用`!important`编写规则
 + 不要使用内联样式编写规则

@@ -1,3 +1,10 @@
++ [总目录](../readme.md)
+***
+- [标准盒模型](#标准盒模型)
+- [替代盒模型](#替代盒模型)
+- [外边距](#外边距)
+- [值和单位](#值和单位)
+***
 #### 标准盒模型
 + 界面上所有的元素, 都被一个盒子所包围
 + 盒子类型一般分为两种: 块级盒子和行内盒子
@@ -437,7 +444,27 @@ button {
   - `height`设置为`auto`, 则根据实际内容的高度决定, 没有内容就是0
   - 使用`margin: auto 0`的方式不能实现垂直居中
 ***
-**注解:** 补充知识 `max-width`, `min-width`, `max-height`, `min-height`
+**注解1:** 关于置换元素的`auto`值
++ 置换元素: 是占位符, 最终会被替换为其他的内容, 如`img`
++ 置换元素当`width`设置为`auto`时, 最终计算为内容宽度
++ 给置换元素设置显示的`width`可以覆盖此行为
++ **TIPS:** 图片占据的是内容区域
+```HTML
+<style>
+  img {
+    display: block;
+    width: auto;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid green;
+  }
+</style>
+<!-- index.png的宽度是220px -->
+<img src="index.png">
+<!-- width会被计算为220px -->
+```
+
+**注解2:** 补充知识 `max-width`, `min-width`, `max-height`, `min-height`
 + 通常都和`width`/`height`一起用
 + `max-width`: 最大宽度, 实际宽度超过该值, 停止动态变化, 固定为该值
 + `min-width`: 最小宽度, 实际宽度小于该值, 停止动态变化, 固定为该值

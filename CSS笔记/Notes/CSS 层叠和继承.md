@@ -1,5 +1,11 @@
++ [总目录](../readme.md)
+***
+- [层叠](#层叠)
+- [选择器优先级](#选择器优先级)
+- [继承](#继承)
+- [补充知识: 简写属性](#补充知识-简写属性)
+***
 #### 层叠
-
 + 层叠, 描述了一整套完整的规则
 + 层叠, 用于解决冲突的 CSS 声明
 ```CSS
@@ -67,11 +73,11 @@ div { color: red; }
 + 关于复杂选择器, 判断其优先级, 需要借助选择器标记
 ```CSS
 #container > ul > .item a[href^="https"]::after {
-  background-image: url(@/images/pdf.png);
+  background-image: url(@/images/pdf1.png);
 }
 
 .container > #ul > li > .link[href*="https"]::after {
-  background-image: url(@/images/pdf.png);
+  background-image: url(@/images/pdf2.png);
 }
 ```
 + 选择器标记: 使用逗号分隔的数值记录选择器的类型和数量
@@ -147,9 +153,9 @@ a:hover { color: orange; }
 a:active { color: blue; }
 ```
 ***
-**CSS 准则:** 不要使用 ID 选择器
+**CSS准则:** 不要使用 ID 选择器
 
-**CSS 准则:** 不要使用内联样式
+**CSS准则:** 不要使用内联样式
 ***
 
 #### 继承
@@ -225,7 +231,7 @@ div { border: solid green 10px; }
 ```
 + 关于四边/四角的简写顺序
   - 四边: 其顺序为 上 右 下 左, 即`TRBL`
-  - 四角: 设置四个角的值, 其顺序为 左上 右上 右下 左下
+  - 四角: 其顺序为 左上 右上 右下 左下
 ```CSS
 div { padding: 10px 20px 20px 10px; }
 div { border-radius: 10px 20px 20px 10px; }

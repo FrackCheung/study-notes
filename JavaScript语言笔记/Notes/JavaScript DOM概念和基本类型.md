@@ -280,10 +280,11 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   - 参数1: 要获取样式的元素
   - 参数2: 伪元素, 不涉及伪元素则传`null`
   - 返回值类型是`CSSStyleDeclaration` (和`element.style`的值一样)
+  - 该方法也挂在`window`上, 可以直接使用
   ```JavaScript
   const btn = document.querySelector('button');
   const cStyle = document.defaultView.getComputedStyle(btn, null);
-  const cStyle = document.defaultView.getComputedStyle(btn, ':after');
+  const cStyle = getComputedStyle(btn, ':after');
   ```
 + 操作样式表: `document.styleSheets`, 意义不大, 省略
   ```html

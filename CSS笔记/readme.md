@@ -16,4 +16,3 @@
   + [CSS 过渡和动画](./Notes/CSS%20过渡和动画.md)
   + [CSS 排版和变换](./Notes/CSS%20排版和变换.md)
 + CSS 案例收集
-+ 附录: [CSS选择器](./Notes/CSS%20选择器.md)

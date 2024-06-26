@@ -269,7 +269,7 @@ div {
 :root { --background-color: red; }
 div {
   background-color: var(--background-color);
-  padding: var(--default-padding, '20px');
+  padding: var(--default-padding, 20px);
 }
 ```
 + `var()`方法如果计算出非法值, CSS属性会使用默认值

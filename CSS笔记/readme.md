@@ -5,8 +5,9 @@
   + [CSS 值和单位](./Notes/CSS%20值和单位.md)
   + [CSS 盒模型](./Notes/CSS%20盒模型.md)
 + CSS 布局和响应式设计
-  + [CSS 浮动布局](./Notes/CSS%20浮动布局.md)
+  + [CSS 浮动](./Notes/CSS%20浮动.md)
   + [CSS 弹性布局](./Notes/CSS%20弹性布局.md)
+  + [CSS 表格布局](./Notes/CSS%20表格布局.md)
   + [CSS 栅格布局](./Notes/CSS%20栅格布局.md)
   + [CSS 定位和层叠上下文](./Notes/CSS%20定位和层叠上下文.md)
   + [CSS 响应式设计](./Notes/CSS%20响应式设计.md)

@@ -7,7 +7,6 @@
 + CSS 布局和响应式设计
   + [CSS 浮动](./Notes/CSS%20浮动.md)
   + [CSS 弹性布局](./Notes/CSS%20弹性布局.md)
-  + [CSS 表格布局](./Notes/CSS%20表格布局.md)
   + [CSS 栅格布局](./Notes/CSS%20栅格布局.md)
   + [CSS 定位和层叠上下文](./Notes/CSS%20定位和层叠上下文.md)
   + [CSS 响应式设计](./Notes/CSS%20响应式设计.md)

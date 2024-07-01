@@ -41,12 +41,8 @@
   点击链接 <a href="/detail">详细信息</a> 查看详情
 </aside>
 <!-- 栅格容器aside中共有5个栅格元素, 占据5个栅格行 -->
+<!-- 6条栅格横线, 2条栅格纵线, 5个栅格行, 1个栅格列, 5个栅格单元 -->
 ```
-+ 以上代码: 其栅格布局的参数为
-  - 栅格线: 横线为六条, 纵线为两条
-  - 栅格轨道: 栅格轨道行有五个, 栅格轨道列有一个
-  - 栅格单元: 共有五个栅格单元
-  - 栅格区域: 最多可以数出15个栅格区域
 ***
 **注解1:** 关于栅格线:
 + 第一条栅格横线, 一定与栅格容器内容区域的上边界重叠
@@ -68,24 +64,20 @@
   - 栅格列宽度总和大于栅格容器宽度时, 会溢出栅格容器
 ```CSS
 div.container {
-  display: grid;
-  width: 600px;
+  display: grid; width: 600px;
   grid-template-columns: 100px 200px 30%;
 }
-/** 栅格容器被划分为三列, 宽度依次为: 100px 200px 180px */
-/** 剩余120px的宽度将被忽略, 栅格元素不会排布到这里  */
+/** 栅格容器被划分为三列, 剩余120px的宽度将被忽略  */
 /** 栅格线共有四条, 最后一条没有和容器右边界重叠 */
 ```
 + 定义栅格列尺寸, 即宽度的其他方法
   - 分数宽度: `fr`, 该值根据栅格容器的可用宽度计算, 并按比例分配
   ```CSS
   div.container {
-    display: grid;
-    width: 600px;
+    display: grid; width: 600px;
     grid-template-columns: 1fr 2fr 3fr;
   }
   /** 栅格容器被划分为三列, 宽度依次为: 100px 200px 300px */
-  /** 栅格线共有四条, 最后一条和容器右边界重叠 */
   ```
   + 重复指定宽度: 使用`repeat`方法
     - 手动指定重复次数, 重复太多次可能导致溢出
@@ -104,23 +96,19 @@ div.container {
     width: 320px;
     grid-template-columns: repeat(auto-fill, 100px);
   }
-  /** 容器被划分为三列, 宽度依次为100px 100px 100px , 最后剩余的20px被忽略*/
+  /** 容器被划分为三列, 宽度为100px 100px 100px , 剩余20px被忽略*/
   ```
 ***
 **注解:** `fr`和其他长度值混用时, 将根据剩余宽度来计算
 ```CSS
 div.container {
-  display: grid;
-  width: 500px;
+  display: grid; width: 500px;
   grid-template-columns: 1fr 2fr 100px 20%;
 }
 /** 栅格容器被划分为四列, 宽度依次为: 100px 200px 100px 100px */
-/** 栅格线共有五条, 最后一条和容器右边界重叠 */
 ```
 ***
-+ 栅格纵线的命名: 使用`[]`包裹名称
-  - 将名称放置在`grid-template-columns`中, 栅格线对应的位置
-  - 名称可以有多个, 空格分隔, 任意一个都可以索引到该条栅格线
++ 栅格纵线的命名: 使用`[]`包裹名称, 多个名称用空格分隔
 ```CSS
 div.container {
   display: grid;
@@ -136,8 +124,6 @@ div.container {
 /** start为1, center为2, end为3 */
 ```
 + 划分栅格行: 使用`grid-template-rows`属性, 只能用于栅格容器
-  - 其属性值, 尺寸设置, 编号, 命名等都与划分栅格列相同
-  - 不再赘述
 ***
 **注解:** 本小节讲述了划分栅格行和列的方法, 涉及到如下CSS属性
 + `grid-template-rows`: 用于划分栅格行
@@ -149,15 +135,11 @@ div.container {
 ***
 
 #### 命名栅格区域
-+ 栅格布局中, 有时候可能想要合并栅格单元, 比如将横向导航栏独占一行
-+ 通过命名栅格区域, 可以提供合并的栅格单元, 使用`grid-template-area`属性
-  - 使用任意的字符串, 定义栅格区域中每个栅格单元的名称
-  - 同一行中的名称使用空格分隔, 不同行使用双引号分隔
++ 使用`grid-template-area`属性, 定义命名栅格区域
+  - 使用任意的字符串, 每个栅格单元名称, 同一行空格分隔, 不同行双引号分隔
   ```CSS
   div.container {
-    display: grid;
-    width: 600px;
-    height: 600px;
+    display: grid; width: 600px; height: 600px;
     grid-template-areas: 
       "top-left top-center top-right"
       "center-left center-center center-right"
@@ -165,14 +147,7 @@ div.container {
   }
   /** 栅格容器被划分为三行三列,  */
   ```
-  - 栅格单元的名称可以任意, 但最好具备标识意义, 以下写法也是合法的
-  ```CSS
-  div.container {
-    display: grid;
-    grid-template-areas: "tl tc tr" "cl cc cr" "bl bc br";
-  }
-  ```
-  - 栅格单元的尺寸是自动确定的, 可以结合`grid-template-rows/columns`设置尺寸
+  - 栅格单元尺寸自动确定, 可以结合`grid-template-rows/columns`设置尺寸
   ```CSS
   div.container {
     display: grid;
@@ -181,7 +156,7 @@ div.container {
     grid-template-columns: repeat(3, 1fr);
   }
   ```
-  - 名称相同的相邻栅格单元, 会被合并到一起, 但还需要额外设置栅格元素
+  - 名称相同的相邻栅格单元, 可以合并到一起, 但需要额外设置栅格元素
   ```HTML
   <style>
     div.container {
@@ -190,8 +165,6 @@ div.container {
         "header header"
         "aside main"
         "aside footer";
-      grid-template-rows: 10% 80% 10%;
-      grid-template-columns: 30% 70%;
     }
   </style>
   <div class="container">
@@ -211,34 +184,16 @@ div.container {
       "t1 t1 t1"
       "c1 c1 cr"
       "c1 b1 b2";
-    grid-template-rows: repeat(3, 1fr);
-    grid-template-columns: repeat(3, 1fr);
   }
   /** c1构成了L型, 无法合并, 且该栅格区域也会失效 */
   ```
+  - 下一节会讲述如何使用命名栅格区域来进行栅格单元的合并
 ***
-**注解:** 下一节会讲述如何使用命名栅格区域来进行栅格单元的合并
-***
-+ 命名栅格区域会自动为首尾两条栅格线命名: 在栅格单元名称上加入`-start`和`-end`
-```CSS
-div.container {
-  display: grid;
-  grid-template-areas: "tl tc tr" "cl cc cr" "bl bc br";
-}
-/** 第一行: 第一条栅格线名称为 tl-start, 最后一条栅格线名称为 tr-end */
-/** 第一列: 第一条栅格线名称为 tl-start, 最后一条栅格线名称为 bl-end */
-/** 其他类似 */
-```
-***
-**注解1:** 通常来说, 不要使用默认栅格线名称, 自己手动指定比较好
-
-**注解2:** 本小节讲述了命名栅格区域, 主要涉及`grid-template-areas`属性
+**注解:** 本小节讲述了命名栅格区域, 主要涉及`grid-template-areas`属性
 ***
 
 #### 栅格元素的排列
-+ 前文讲述了划分栅格的集中方法, 现在只需将栅格元素, 放置到想要的位置即可
-  - 栅格元素可以放置到栅格单元中, 也可以放置到栅格区域中
-  - 并非所有的栅格都必须要放置内容, 不想放可以不放
++ 前文讲述了划分栅格的方法, 现在只需将栅格元素, 放置到想要的位置即可
 ***
 **案例:** 后续讲述的栅格元素放置方法, 都以该示例为例
 ```HTML
@@ -295,32 +250,21 @@ div.container {
   }
   ```
 ***
-**注解1:** 如果省略结束栅格线的定义, 只定义开始栅格线
+**注解:** 如果省略结束栅格线的定义, 只定义开始栅格线
 + 使用编号: 则结束栅格线编号 = 开始栅格线编号 + 1
 ```CSS
 .main { grid-row-start: 2; grid-column-start: 2; }
 /** grid-row-end为3, grid-column-end为3 */
 ```
-+ 使用名称: 情况过于复杂, 此处省略解释
-
-**注解2:** 如果定义的栅格线越界, 会自动创建新的栅格线, 溢出栅格容器
-```CSS
-.main {
-  grid-row: 2 / 5;
-  grid-column: 2 / 4;
-}
-```
 ***
-+ 栅格元素放置方法2: 指定栅格元素需要放置的栅格区域名称
-  - `grid-area`属性: 指定栅格元素需要放置的栅格区域名称
-  - 名称来自于`grid-template-areas`属性指定的命名栅格区域
-  ```CSS
-  .nav { grid-area: header; }
-  .aside { grid-area: aside; }
-  .main { grid: main; }
-  .footer { grid: footer; }
-  /** 通过这种方式, 即可看到相邻且同名的栅格单元被合并 */
-  ```
++ 栅格元素放置方法2: 指定栅格元素需要放置的栅格区域名称, 使用`grid-area`属性
+```CSS
+.nav { grid-area: header; }
+.aside { grid-area: aside; }
+.main { grid: main; }
+.footer { grid: footer; }
+/** 通过这种方式, 即可看到相邻且同名的栅格单元被合并 */
+```
 ***
 **注解:** 本小节讲述了将栅格元素放置到栅格区域上的方法, 主要涉及如下CSS属性
 + `grid-row-start`: 指定栅格元素起始栅格横线

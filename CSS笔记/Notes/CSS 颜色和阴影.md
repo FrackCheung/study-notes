@@ -20,17 +20,8 @@
 
 #### 线性渐变
 + 线性渐变: 沿着线性向量填充得到的渐变, 该向量称为梯度线
-+ 使用`linear-gradient`属性定义线性渐变, 最简单的使用可以传入两个颜色值
-```CSS
-div {
-  width: 400px; height: 100px;
-  background-image: linear-gradient(red, green);
-}
-/** div背景是从顶部的红色, 渐变到底部的绿色 */
-```
-+ `linear-gradient`属性需要指明渐变方向, 色标, 和色标位置
-+ 渐变方向: 指明线性渐变方向, 有以下几个方法
-  - 渐变方向可选, 如果不指定, 默认值为从顶部到底部
++ 使用`linear-gradient`定义渐变, 需要指明渐变方向, 色标, 和色标位置
++ 渐变方向: 指明线性渐变方向, 可选, 默认值为从顶部到底部
   - 使用`to`加上`left`, `right`, `top`, `bottom`
   ```CSS
   /** 渐变方向从左向右 */
@@ -50,30 +41,7 @@ div {
     background-image: linear-gradient(180deg, red, green);
   }
   ```
-  - 使用`rad`弧度制, `0rad`向上, 正数顺时针, 一圈约`6.282rad`
-  ```CSS
-  /** 渐变方向从上到下 */
-  div {
-    background-image: linear-gradient(3.141rad, red, green);
-  }
-  ```
-  - 使用`turn`圆周, `0turn`向上, 正数顺时针, `1turn`即`360deg`
-  ```CSS
-  /** 渐变方向从上到下 */
-  div {
-    background-image: linear-gradient(0.5turn, red, green);
-  }
-  ```
-  - 使用`grad`百分度, `0grad`向上, 正数顺时针, `100grad`即`90deg`
-  ```CSS
-  /** 渐变方向从上到下 */
-  div {
-    background-image: linear-gradient(200grad, red, green);
-  }
-  ```
-***
-**注解:** 一个完整的圆周是`400grad`
-***
+  - 其他的`rad`, `turn`, `grad`都不再赘述, 也不建议使用
 + 色标: 即颜色节点, 渐变会在色标间平滑过渡
   - 色标必须至少定义两个, 使用`,`逗号隔开
   - 色标在渐变方向上均匀过渡
@@ -138,17 +106,8 @@ div {
 
 #### 径向渐变
 + 径向渐变: 从一个点开始, 全方位向外扩展
-+ 使用`radial-gradient`属性定义径向渐变, 最简单的使用可以传入两个颜色值
-```CSS
-div {
-  width: 400px; height: 100px;
-  background-image: radial-gradient(red, green);
-}
-/** div背景是从中间的红色, 渐变到四周的绿色 */
-```
-+ `linear-gradient`需要指明渐变形状, 尺寸, 点位置, 色标, 和色标位置
-+ 渐变形状: 径向渐变的形状只有两种, 圆形`circle`和椭圆`ellipse`
-  - 形状是可选的, 不指定, 则根据元素尺寸来确定, 默认是椭圆
++ 使用`radial-gradient`, 需要指明渐变形状尺寸, 点位置, 色标和色标位置
++ 渐变形状: 只有两种, `circle`和`ellipse`, 可选, 默认以元素尺寸确定
   - `circle`: 对于方形元素, 默认是圆形, 也可以手动指定
   ```CSS
   div {
@@ -172,8 +131,7 @@ div {
   ```CSS
   div {
     width: 400px; height: 400px;
-    background-image:
-      radial-gradient(200px, red, green);
+    background-image: radial-gradient(200px, red, green);
   }
   ```
 ***
@@ -184,8 +142,7 @@ div {
   ```CSS
   div {
     width: 400px; height: 400px;
-    background-image:
-      radial-gradient(at 25% 25%, red, green);
+    background-image: radial-gradient(at 25% 25%, red, green);
   }
   ```
 + 色标, 和色标位置和线性渐变一致, 不再赘述
@@ -241,6 +198,53 @@ div {
 ***
 
 #### 滤镜
++ 滤镜: 调整元素或图片的视觉外观, 使用`filter`属性, 包含一系列方法
++ 模糊滤镜, `blur()`, 传入模糊偏差值, 不能为负
+  ```CSS
+  div { filter: blur(1px); }
+  ```
++ 透明度滤镜, `opacity()`, 传入0-1的值, 和`opacity`类似
+  ```CSS
+  div { filter: opacity(0.5); }
+  ```
++ 阴影滤镜, `drop-shadow()`, 创建轮廓阴影, 偏移量/模糊半径/颜色
+  ```CSS
+  div { filter: drop-shadow(5px 5px 1px black); }
+  ```
++ 灰阶滤镜, `grayscale()`, 0不变, 1全灰, 中间值部分灰
+  ```CSS
+  div { filter: grayscale(0.5); }
+  ```
++ 褐色滤镜, `sepia()`, 0不变, 1全褐色, 中间值部分褐色
+  ```CSS
+  div { filter: sepia(0.5); }
+  ```
++ 反相滤镜, `invert()`, 0不变, 1完全反转, 中间值部分反转
+  ```CSS
+  div { filter: invert(1); }
+  ```
++ 色相旋转滤镜, `hue-rotate()`, 0和`360*n`不变, 中间值以色轮旋转决定
+  ```CSS
+  div { filter: hue-rotate(360); }
+  ```
++ 亮度滤镜, `brightness()`, 1不变, 0纯黑, 大于1亮度增加
+  ```CSS
+  div { filter: brightness(10); }
+  ```
++ 对比度滤镜, `contrast()`, 1不变, 0纯灰, 大于1对比度增加
+  ```CSS
+  div { filter: contrast(10); }
+  ```
++ 饱和度滤镜, `saturate()`, 1不变, 0没有饱和度, 大于1饱和度增加
+  ```CSS
+  div { filter: saturate(10); }
+  ```
+***
+**注解:** 关于`drop-shadow`和`box-shadow`
++ `box-shadow`默认是在元素的边框外侧生成阴影
++ `drop-shadow`滤镜则是在图片的不透明轮廓下方生成阴影
+***
+
 #### 混合
 #### 裁剪
 #### 遮罩

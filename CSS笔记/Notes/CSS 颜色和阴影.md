@@ -22,14 +22,9 @@
 + 线性渐变: 沿着线性向量填充得到的渐变, 该向量称为梯度线
 + 使用`linear-gradient`定义渐变, 需要指明渐变方向, 色标, 和色标位置
 + 渐变方向: 指明线性渐变方向, 可选, 默认值为从顶部到底部
-  - 使用`to`加上`left`, `right`, `top`, `bottom`
+  - 使用`to`加上`left`, `right`, `top`, `bottom`, 可以指定对角
   ```CSS
-  /** 渐变方向从左向右 */
-  div {
-    background-image: linear-gradient(to right, red, green);
-  }
-
-  /** 也可指定对角方向, 渐变方向从左下到右上 */
+  /** 指定对角方向, 渐变方向从左下到右上 */
   div {
     background-image: linear-gradient(to top right, red, green);
   }
@@ -42,9 +37,7 @@
   }
   ```
   - 其他的`rad`, `turn`, `grad`都不再赘述, 也不建议使用
-+ 色标: 即颜色节点, 渐变会在色标间平滑过渡
-  - 色标必须至少定义两个, 使用`,`逗号隔开
-  - 色标在渐变方向上均匀过渡
++ 色标: 即颜色节点, 渐变会在色标间平滑过渡, 必须至少定义两个, 用逗号隔开
   ```CSS
   /** 渐变均匀的从红色过渡到绿色, 在过渡到黄色 */
   div {
@@ -111,14 +104,12 @@
   - `circle`: 对于方形元素, 默认是圆形, 也可以手动指定
   ```CSS
   div {
-    width: 400px; height: 100px;
     background-image: radial-gradient(circle, red, green);
   }
   ```
   - `ellipse`: 对于非方形元素, 默认是椭圆, 也可以手动指定
   ```CSS
   div {
-    width: 400px; height: 400px;
     background-image:
       radial-gradient(ellipse 200px 400px, red, green);
   }
@@ -141,7 +132,6 @@
   - 点位置可选, 默认是`center`
   ```CSS
   div {
-    width: 400px; height: 400px;
     background-image: radial-gradient(at 25% 25%, red, green);
   }
   ```
@@ -150,7 +140,6 @@
 ```CSS
 /** 循环径向渐变的条纹效果 */
 div {
-  width: 400px; height: 400px;
   background-image:
     repeating-radial-gradient(
       red   0,    red   10px,
@@ -240,11 +229,164 @@ div {
   div { filter: saturate(10); }
   ```
 ***
-**注解:** 关于`drop-shadow`和`box-shadow`
+**注解1:** 关于`drop-shadow`和`box-shadow`
 + `box-shadow`默认是在元素的边框外侧生成阴影
 + `drop-shadow`滤镜则是在图片的不透明轮廓下方生成阴影
+
+**注解2:** 滤镜可以使用多个, 按照顺序应用效果, 使用空格分隔
+```CSS
+div { filter: opacity(0.5) blur(1px); }
+```
 ***
 
 #### 混合
++ 混合: 为处于相同位置且重叠的不同元素或者图片指定其混合显示的模式
++ 背景混合: 使用`background-blend-mode`, 混合背景图, 渐变, 背景色等
+  - `background-image`: 可以使用多个图片或渐变, 前者覆盖后者
+  ```CSS
+  div {
+    /** 只能看到图片, 看不到渐变, 但可以通过图片的透明部分, 看到渐变 */
+    background-image: url(./index.png), linear-gradient(red, green);
+  }
+  ```
+  - 混合模式的计算中, RGB均采用`0-1`的值
+  - `darken`: 前后RGB分量中, 取较小值重新组成RGB
+  - `lighten`: 前后RGB分量中, 取较大值重新组成RGB
+  - `difference`: 前后RGB分量相减, 取绝对值重新组成RGB
+  - `exclusion`: result = 前 + 后 - ( 2 * 前 * 后 ), 前后都是0-1的值
+  - `multiply`: 前后RGB分量相乘, 结果重新组成RGB
+  - `screen`: 前后RGB分量, 各自反相后, 相乘再反相, 组成RGB作为结果
+  - `overlay`: 前景RGB低于0.5使用`multiply`, 高于0.5使用`screen`
+  - `hard-light`: 背景RGB低于0.5使用`multiply`, 高于0.5使用`screen`
+  - `soft-light`: 柔和版的`hard-light`, 公式复杂, 不再赘述
+  - `color-dodge`: 前景RGB分量反相后, 再除背景RGB分量, 组成RGB作为结果 
+  - `color-burn`: 背景RGB分量反相后, 再除前景RGB分量, 组成RGB作为结果
+  - `hue`: 前景的色相角度, 背景的明度和饱和度, 将其合并后作为结果
+  - `saturation`: 前景的饱和度, 背景的色相角度和明度, 将其合并后作为结果
+  - `color`: 前景的色相角度, 背景的明度, 将其合并后作为结果
+  - `luminosity`: 前景的明度, 背景的色相角度和饱和度, 将其合并后作为结果
+  ```CSS
+  div {
+    background-image: url(./index.png), linear-gradient(red, green);
+    background-blend-mode: soft-light;
+  }
+  ```
++ 元素混合: 使用`mix-blend-mode`, 混合重叠的元素, 取值和上述一致
+  ```CSS
+  div.fore { position: absolute; z-index: 2; mix-blend-mode: darken; }
+  div.back { position: absolute; z-index: 1; }
+  ```
+***
+**注解1:** 混合默认值是`normal`, 除了`alpha`通道, 其他原样显示, 也称`alpha`混合
+
+**注解2:** 多个背景, 或者多个元素的混合从后向前, 依次混合
+
+**注解3:** 混合模式可以使用多个, 按照顺序应用效果, 使用逗号分隔
+```CSS
+div { background-blend-mode: soft-light, lighten, multiply; }
+```
+***
++ 独立混合: 使用`isolation`属性
+  - 使用该属性的元素会单独混合其后代元素和背景, 完成之后再和其他元素混合
+  ```CSS
+  div { isolation: isolate; }
+  ```
+
 #### 裁剪
++ 裁减: 只显示元素的部分区域, 可见区域可以指定为各种形状
++ 此处的裁减和`background-clip`不同, 后者只能设置矩形, 且值有限
++ 使用`clip-path`属性, 对元素进行更为丰富的裁减, 可以使用以下值
+  - `none`: 默认值, 不做裁减
+  - `url`: 引用外部SVG文件中的`<clipPath>`元素
+  ```CSS
+  div { clip-path: url(./index.svg#circle); }
+  ```
+  - `inset`: 矩形裁减, 指定矩形范围, 还可以使用`round`定义圆角
+  ```CSS
+  div { clip-path: inset(10px 12px 11px 11px round 10px); }
+  ```
+  - `circle`: 圆形裁减, 指定半径, 再使用`at`指定圆心位置
+  ```CSS
+  div { clip-path: circle(200px at center); }
+  ```
+  - `ellipse`: 椭圆裁减, 指定横轴/纵轴半径, 再使用`at`指定圆心位置
+  ```CSS
+  div { clip-path: ellipse(100px 200px at 25% 25%); }
+  ```
+  - `polygon`: 多边形裁减, 一系列逗号分隔的`x y`值
+  ```CSS
+  div { clip-path: polygon(200px 0, 0 400px, 400px 400px); }
+  ```
+  - 其他裁减方式, 或者和`background-clip`一样, 或者需要使用SVG, 不再赘述
+  - 使用`clip-rule`, 可以指定裁减填充方式, 但只适用于SVG, 不再赘述
+***
+**注解:** 裁减不会改变元素的尺寸, 仅仅只是内容不可见
+***
+
 #### 遮罩
++ 遮罩: 也称蒙版, 指定形状, 形状内部的内容可见, 外部不可见
+  - 遮罩只能使用图片作为形状
+  - 遮罩的精细化控制更强, 可以定位, 设置尺寸, 以及重复蒙版等
++ 定义遮罩, 使用`mask-image`属性
+```CSS
+div {
+  background-image: url(./index.png);
+  mask-image: url(./index2.png);
+}
+```
++ 定义遮罩模式, 使用`mask-mode`属性, 有如下三个值:
+  - `alpha`: 透明部分遮挡下方内容, 不透明部分显示下方内容
+  - `luminance`: 明度为0的部分遮挡下方内容, 明度为1的部分完全显示下方内容 
+  - `match-source`: 默认值, `image`使用`alpha`, SVG使用`luminance`
+```CSS
+div { mask-mode: luminance; }
+```
++ 调整遮罩图片尺寸: 使用`mask-size`属性, 遮罩图片默认是原始尺寸
+  - `auto`: 使用默认尺寸, 或者根据宽高比计算, 和`background-size`一致
+  - 使用长度值或百分比, 指定宽高, 和`background-size`一致
+  - `cover`/`contain`: 和`background-size`一致
+```CSS
+div { mask-size: cover; }
+```
++ 定义遮罩图片重复模式: 使用`mask-repeat`属性
+  - 取值和`background-repeat`一致, 不再赘述
+```CSS
+div { mask-repeat: repeat; }
+```
++ 定位遮罩图片位置: 使用`mask-position`
+  - 取值和`background-position`一致, 不在赘述
+```CSS
+div { mask-position: center; }
+```
++ 定义蒙版边界: 使用`mask-origin`
+  - `background-origin`的值都能使用, 不再赘述
+  - `margin-box`, 外边距外侧的边界, 请参阅注解
+  - `fill-box`/`stroke-box`/`view-box`: 用于SVG
+```CSS
+div { mask-origin: margin-box; }
+```
+***
+**注解:** 如果蒙版图片原始尺寸过大, 到达外边距以外, 会造成其他内容也被遮挡
+***
++ 定义蒙版图片裁减: 使用`mask-clip`
+  - `background-clip`的值都能使用, 不再赘述
+  - `margin-box`, 外边距外侧的边界
+  - `fill-box`/`stroke-box`/`view-box`: 用于SVG
+```CSS
+div { mask-clip: margin-box; }
+```
++ 遮罩的集合计算: 使用`mask-composite`属性, 这也会改变遮罩的底层处理方式
+  - `add`: 并集计算, 同时显示遮罩图片和下方图片
+  - `subtract`: 差集计算, 只显示遮罩图片, 并裁减掉和下方图片重叠的部分
+  - `intersect`: 交集计算, 只显示遮罩图片和下方图片重叠的部分
+  - `exclude`: 去除计算, 同时显示遮罩图片和下方图片, 并裁减掉重叠的部分
+```CSS
+div {
+  background-image: url(./index.png);
+  mask-image: url(./index2.png);
+  mask-composite: exclude;
+}
+```
+***
+**注解:** Chrome浏览器不支持`mask-composite`属性, 加前缀也不行
+***

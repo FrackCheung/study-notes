@@ -329,7 +329,7 @@ xhr.send();
 ```
 + 使用`XMLHTTPRequest`发送CORS跨源请求: xhr指定其他源的绝对URL, 但有如下限制
   - 服务器必须设置`Access-Control-Allow-Origin`响应头, 指定允许的访问源
-  - 不允许使用`setRequestHeader`设置自定义响应头
+  - 不允许使用`setRequestHeader`设置自定义请求头
   - 不允许携带Cookie
 ```JavaScript
 // express server.js

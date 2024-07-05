@@ -13,7 +13,6 @@
   + [CSS 背景和图片](./Notes/CSS%20背景和图片.md)
   + [CSS 颜色和阴影](./Notes/CSS%20颜色和阴影.md)
   + [CSS 过渡和动画](./Notes/CSS%20过渡和动画.md)
-  + [CSS 排版和变换](./Notes/CSS%20排版和变换.md)
 + CSS 杂项
   + [CSS 杂项](./Notes/CSS%20杂项.md)
 

@@ -186,6 +186,7 @@ h1 { counter-increment: mu_counter -1; } /** 指定为负数 */
 ***
 **注解1:** 计数器不会显示初始值, 而是从第一个增量值开始
 ```CSS
+:root { counter-reset: my_counter 5; }
 h1 { counter-increment: my_counter -1; }
 /** 实际显示的计数为: 4, 3, 2, 1, 0, -1... */
 ```

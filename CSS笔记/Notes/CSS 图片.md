@@ -70,12 +70,22 @@ div { background-image: url(@/images/background.png); } /** 省略 */
   ```
 + 混用: 关键字, 百分比, 长度值可以混合使用
   ```CSS
-  /** 图片左上角距离底部20px, 距离右侧40px */
-  div { background-position: bottom 20px right 40px; }
-
   /** 将图片相对于元素左上角, 向右偏移20px, 垂直方向居中 */
   div { background-position: 20px 50%; }
   ```
++ 指定偏移的边界: 默认情况下, 是图片左上边界, 相对于元素左上边界偏移
+  ```CSS
+  /** 指定四个参数, 同时修改图片和元素的边界定义, 再进行偏移 */
+  div { background-position: right 40px bottom 20px; }
+  ```
+***
+**注解:** 分析如下CSS中, 图片的位置是否一样
+```CSS
+div { width: 800px; height: 200px; }
+div { background-position: calc(100% - 10px) calc(100% - 10px); }
+div { background-position: 790px 190px; }
+```
+***
 
 #### 图片尺寸
 + 图片的尺寸默认使用图片的原始尺寸

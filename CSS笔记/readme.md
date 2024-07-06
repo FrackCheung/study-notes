@@ -10,9 +10,9 @@
   + [CSS 栅格布局](./Notes/CSS%20栅格布局.md)
   + [CSS 定位和层叠上下文](./Notes/CSS%20定位和层叠上下文.md)
 + CSS 高级技巧
-  + [CSS 背景和图片](./Notes/CSS%20背景和图片.md)
-  + [CSS 颜色和阴影](./Notes/CSS%20颜色和阴影.md)
-  + [CSS 过渡和动画](./Notes/CSS%20过渡和动画.md)
+  + [CSS 图片](./Notes/CSS%20图片.md)
+  + [CSS 颜色](./Notes/CSS%20颜色.md)
+  + [CSS 动画](./Notes/CSS%20动画.md)
 + CSS 杂项
   + [CSS 杂项](./Notes/CSS%20杂项.md)
 

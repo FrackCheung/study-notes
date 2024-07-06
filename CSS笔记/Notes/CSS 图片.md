@@ -59,9 +59,10 @@ div { background-image: url(@/images/background.png); } /** 省略 */
   div { background-position: 50%; }
   ```
 ***
-**注解1:** 浏览器在处理如`background-position: 20% 30%`的规则时
-+ 水平偏移`px`: `(element_width - image_width) * 20%`
-+ 垂直偏移`px`: `(element_height - image_height) * 30%`
+**注解1:** 百分比的值, 首先会计算出绝对偏移量
++ 假设有`background-position: 20% 30%`
+  - 水平偏移`px`: `(element_width - image_width) * 20%`
+  - 垂直偏移`px`: `(element_height - image_height) * 30%`
 
 **注解2:** 分析如下CSS中, 图片的位置
 ```CSS

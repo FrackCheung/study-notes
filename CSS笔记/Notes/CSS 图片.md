@@ -59,15 +59,10 @@ div { background-image: url(@/images/background.png); } /** 省略 */
   div { background-position: 50%; }
   ```
 ***
-**注解1:** 百分比的值, 首先会计算出绝对偏移量
+**注解:** 浏览器会将百分比的值计算为绝对偏移量, 再进行偏移
 + 假设有`background-position: 20% 30%`
   - 水平偏移`px`: `(element_width - image_width) * 20%`
   - 垂直偏移`px`: `(element_height - image_height) * 30%`
-
-**注解2:** 分析如下CSS中, 图片的位置
-```CSS
-div { background-position: calc(100% - 10px) calc(100% - 10px); }
-```
 ***
 + 使用长度值: 指定图片左上角, 相对于边界左上角的偏移
   - 需要指定水平/垂直方向偏移, 顺序不能换, 只给一个值, 省略的方向会居中
@@ -92,6 +87,12 @@ div { background-position: calc(100% - 10px) calc(100% - 10px); }
   /** 指定四个参数, 同时修改图片和元素的边界定义, 再进行偏移 */
   div { background-position: right 40px bottom 20px; }
   ```
+***
+**注解2:** 分析如下CSS中, 图片的位置
+```CSS
+div { background-position: calc(100% - 10px) calc(100% - 10px); }
+```
+***
 
 #### 图片尺寸
 + 图片的尺寸默认使用图片的原始尺寸

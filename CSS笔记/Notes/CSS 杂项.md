@@ -58,15 +58,6 @@ div { transform: translate(20px, 50px) rotate(45deg) skewX(10deg); }
 ```CSS
 a[href]::after { content: "[link]" }
 ```
-+ 伪元素必须添加`content`属性, 即使没有内容, 也必须指定空字符串
-```CSS
-a[href$=".pdf"]::after {
-  background-image: url(@/pdf.png);
-  width: 20px;
-  height: 20px;
-  content: "";
-}
-```
 + 伪元素的`content`可以使用`attr`引用当前元素的属性值
 ```CSS
 a[href]::after { content: attr(href); }
@@ -79,32 +70,29 @@ span::after { content: "<label>Hello, World</label>" }
 ```CSS
 a[href]::after { content: "[ " attr(href)  " ]"; }
 ```
-+ 伪元素`content`属性中, 添加`\`以换行书写, 但内容不会换行
++ 伪元素`content`属性中, 添加`\`以换行书写, 添加`\A`让内容换行
 ```CSS
 a[href]::after {
   content: "Hello \
     World";
 }
-```
-+ 伪元素`content`属性中, 如果内容需要再界面上换行, 使用`\A`
-```CSS
+
 a[href]::after { content: "Hello \A World"; }
 ```
 
 #### CSS计数器
-+ 创建计数器的名称和起点: 使用`counter-reset`属性, 起点默认为`0`
++ 创建计数器: 使用`counter-reset`属性
 ```CSS
-:root { counter-reset: my_counter 4; } /** 从4开始 */
+/** 指定名称和初始值, 初始值可省略, 默认是0, 可正可负 */
 :root { counter-reset: my_counter -10; } /** 可以指定负数 */
 :root { counter-reset: my_counter1 1 my_counter2 4; } /** 可以指定多个 */
 ```
 ***
 **注解:** 计数器可以在全局指定, 也可以在某个元素中指定, 重要的是名称和初始值
 ***
-+ 指定计数器的名称和增量: 使用`counter-increment`属性, 增量默认是`1`
++ 在需要计数的元素上计数: 使用`counter-increment`属性, 要指定增量
 ```CSS
-h1 { counter-increment: mu_counter; } /** 默认是1 */
-h1 { counter-increment: mu_counter 2; } /** 指定为正数 */
+/** 增量值可省略, 默认是1, 可正可负 */
 h1 { counter-increment: mu_counter -1; } /** 指定为负数 */
 ```
 ***
@@ -115,9 +103,9 @@ h1 { counter-increment: my_counter -1; }
 /** 实际显示的计数为: 4, 3, 2, 1, 0, -1... */
 ```
 
-**注解2:** 必须定义在需要计数的元素上, 对应元素将会按照源码顺序增量计数
+**注解2:** 计数元素会按照源码顺序, 以及定义的增量来计数
 ***
-+ 显示计数器: 在伪元素的`content`属性中使用`counter`获取计数器的值
++ 显示计数值: 在伪元素的`content`属性中使用`counter`获取计数器的值
 ```CSS
 h1::after { content: counter(my_counter); }
 ```
@@ -173,14 +161,6 @@ h1::after { content: counter(my_counter); }
   - 设备尺寸: `device-width`/`device-height`, 包括`min-`/`max-`, 不再赘述
   ```CSS
   @media (min-device-width: 1024px) {  }
-  ```
-  - 视口宽高比: `aspect-ratio`, 包括`min-`/`max-`, 不再赘述
-  ```CSS
-  @media (min-aspect-ratio: 1.7) {  }
-  ```
-  - 设备宽高比: `device-aspect-ratio`, 包括`min-`/`max-`, 不再赘述
-  ```CSS
-  @media (max-device-aspect-ratio: 1.7) {  }
   ```
   - 彩色显示: `color`, 包括`min-`/`max-`, 不再赘述
   ```CSS
@@ -342,3 +322,23 @@ h1::after { content: counter(my_counter); }
 ```CSS
 div { font-family: 'MyFont', sans-serif; } /** 一定要提供回退字体 */
 ```
+
+#### HSL颜色表示
++ 传统的`RGB`和`RGBA`很难根据分量得出颜色, 以及根据颜色写出分量
+```CSS
+div { background-color: rgba(233, 74, 191, 0.5); }
+```
++ `HSL`根据色相, 饱和度, 明度, 以及可选的透明度指定颜色
+  - `H`: 表示色相角, 即色环上的旋转角度, 使用可接受的角度参数, 如`deg`
+  - `S`: 表示饱和度, `100%`完全饱和 (正常色), `0%`完全不饱和 (灰色)
+  - `L`: 明度, 即亮度, `100%`最亮 (白色), `0%`是最暗 (黑色), `50%`正常色
+  - 透明度: 取值范围`0-1`, 或者`0%-100%`
+```CSS
+div { background-color: hsl(0deg, 100%, 50%, 0.5); }
+```
++ 关于色环, 也称色轮
+  - `0deg`是红色, `120deg`是绿色, `240deg`是蓝色, `360deg`是红色
+  - `0-120deg`: 红色和绿色的插值渐变, 依次简单记忆为橙色, 黄色, 绿黄
+  - `120-240deg`: 绿色和蓝色的插值渐变, 依次简单记忆为青绿, 天蓝, 青蓝
+  - `240-360deg`: 蓝色和红色的插值渐变, 依次简单记忆为紫蓝, 紫色, 紫红
+  ![](../Assets/color-wheel.jpg)

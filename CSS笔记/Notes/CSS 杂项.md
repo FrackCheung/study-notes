@@ -1,66 +1,36 @@
 + [总目录](../readme.md)
 ***
 - [变换](#变换)
-- [列表](#列表)
 - [伪元素content](#伪元素content)
 - [CSS计数器](#css计数器)
 - [媒体查询](#媒体查询)
+- [表格布局](#表格布局)
 - [Web字体](#web字体)
 ***
 #### 变换
-+ 变换: 对元素进行2D/3D的平移, 旋转和缩放, 倾斜
-+ 变换使用`transform`属性, 该属性使用多个变换函数, 并按照顺序处理
-***
-**注解1:** 变换相对于元素自身坐标系, `x`轴向右, `y`轴向下, `z`轴向外
-
-**注解2:** 元素自身坐标系会随元素变化, 比如元素旋转, 坐标系也会随之旋转
-***
 + 平移变换: 支持`px`像素值和百分数 (相对于元素边框外侧范围)
   - `translateX`/`translateY`/`translateZ`: 沿自身`x`/`y`/`z`轴平移
   - `translate`: 同时指定`x`, `y`轴上的平移
   - `translate3d`: 同时指定`x`, `y`, `z`轴上的平移距离
-***
-**注解:** `translate`和`translate3d`可以省略值, 省略值将视为`0`
-***
 + 缩放变换: 使用纯数字, 不支持百分数
   - `scaleX`/`scaleY`/`scaleZ`: 围绕自身的`x`/`y`/`z`轴缩放
   - `scale`: 同时指定`x`, `y`轴上的缩放
   - `scale3d`: 同时指定`x`, `y`, `z`轴上的缩放
-***
-**注解1:** `scale`如果只给定一个值, 将同时用于`x`, `y`轴缩放
-
-**注解2:** 绕`z`轴旋转的前提是元素必须有深度
-***
 + 旋转变换: 接受有效的角度值, 如`deg`等, 正数顺时针, 负数逆时针
   - `rotateX`/`rotateY`/`rotateZ`: 围绕自身的`x`/`y`/`z`轴旋转
   - `rotate`: 等同于`rotateZ`, 绕`z`轴旋转
   - `rotate3d`: 绕指定轴旋转, 需要指明轴向量, 和旋转角度
-***
-**注解:** `rotate(45deg)`等同于`rotate3d(0, 0, 1, 45deg)`
-***
 + 倾斜变换: 接受有效的角度值, 如`deg`等
   - `skewX`/`skewY`: 沿自身的`x`/`y`轴倾斜指定角度
   - `skew`: 同时指定`x`, `y`上的倾斜角度
-***
-**注解1:** `skew(x, y)`不等于`skewX(x) skewY(y)`
-
-**注解2:** `skew`的省略值被视为`0`
-***
 + 视矩变换: 这里需要非常熟悉线性代数, 或了解图形学, 否则可以直接略过
   - `matrix`: 使用6个数值, 指定2D变换矩阵
   - `matrix3d`: 使用16个数值, 以列主序方式指定3D变换矩阵
   - `perspective`: 视域, 金字塔透视效果, 接受`px`长度值, 只能正数
 ***
-**注解1:** `matrix`的6个值会被转成如下四阶矩阵  
+**注解1:** 变换相对元素自身, `x`轴向右, `y`轴向下, `z`轴向外, 且会随元素变化
 
-$
-\begin{Bmatrix}
-    v1 & v3 & 0 & v5 \\\\
-    v2 & v4 & 0 & v6 \\\\
-    0  & 0  & 1 & 0 \\\\
-    0  & 0  & 0 & 1
-\end{Bmatrix}
-$
+**注解2:** `scale`如果只给定一个值, 将同时用于`x`, `y`轴缩放
 ***
 + 使用`transform`应用上述变换, 变换函数需要空格分隔, 从左到右依次处理
 ```CSS
@@ -82,52 +52,6 @@ div { transform: translate(20px, 50px) rotate(45deg) skewX(10deg); }
 ***
 **注解:** 平时只需要了解平移, 缩放, 旋转的常规用法即可
 ***
-
-#### 列表
-+ 使用`display: list-item`可以将任意元素设置为列表项
-```CSS
-span { display: list-item; }
-```
-***
-**注解:** `li`元素默认即为`list-item`
-***
-+ 修改列表项的记号类型: 使用`list-style-type`属性, 有几十个取值
-  - 默认值: `disc`, 即一个小圆点
-  - `decimal-leading-zero`: 将序号前面补零, 同一长度
-  - `lower-alpha`: 小写字母
-  - `none`: 不显示记号
-  - ...
-***
-**注解:** `list-style-type`可以使用字符串, 但所有的列表项记号都是一样的 
-```CSS
-li { list-style-type: "@@: "; }
-```
-***
-+ 修改列表项的显示图片: 使用`list-style-image`属性, 默认值`none`
-```CSS
-ul li {
-  list-style-image: url(@/item.png);
-
-  /** 提供一个默认记号类型, 放置图片无法加载时没有记号 */
-  list-style-type: decimal-leading-zero;
-}
-```
-***
-**注解:** 使用图像的地方, 都可以使用渐变
-***
-+ 修改列表项的记号位置: 使用`list-style-position`属性
-  - 默认值: `outside`, 记号在内容外侧, 离内容有一点距离
-  - `inside`: 会将内容往里推, 离内容更近
-```CSS
-ul li { list-style-position: inside; }
-```
-***
-**注解:** 文字不好描述, 亲自试一试, 并不是在内容的里面或外面这个意思
-***
-+ 使用`list-style`简写上述属性
-```CSS
-ul li { list-style: decimal url(@/item.png) inside; }
-```
 
 #### 伪元素content
 + 使用`::after`和`::before`定义伪元素
@@ -298,6 +222,89 @@ h1::after { content: counter(my_counter); }
 ```HTML
 <meta name="viewport" content="width=device-width, initial-scale=1">
 ```
+
+#### 表格布局
++ 表格布局: 使用CSS将元素展示为和`table`标签一样的效果
++ 表格布局: 使用`display`属性, 将元素指定显示为表格相关的内容
+  - `table`: 将元素显示为块级表格, 类似于创建了`<table>`表格
+  - `table-caption`: 类似于创建了`<caption>`标签
+  - `table-header-group`: 类似于创建了`<thead>`标签
+  - `table-footer-group`: 类似于创建了`<tfoot>`标签
+  - `table-row`: 类似于创建了`<tr>`标签
+  - `table-row-group`: 类似于创建了`<tbody>`标签
+  - `table-cell`: 类似于创建了`<td>`标签
+  - `table-column`: 类似于创建了`<col>`标签
+  - `table-column-group`: 类似于创建了`<colgroup>`标签
++ 示例代码:
+```HTML
+<style>
+  .table { display: table; }
+  .table-caption { display: table-caption; }
+  .table-header-group { display: table-header-group; }
+  .table-row-group { display: table-row-group; }
+  .table-row { display: table-row; }
+  .table-cell { display: table-cell; }
+  .table-footer-group { display: table-footer-group; }
+</style>
+<div class="table">
+  <div class="table-caption">Table Title</div>
+  <div class="table-header-group">
+    <div class="table-cell">Name</div>
+    <div class="table-cell">Age</div>
+  </div>
+  <div class="table-row-group">
+    <div class="table-row">
+      <div class="table-cell">张三</div>
+      <div class="table-cell">18</div>
+    </div>
+    <div class="table-row">
+      <div class="table-cell">李四</div>
+      <div class="table-cell">20</div>
+    </div>
+  </div>
+  <div class="table-footer-group">Table Footer</div>
+</div>
+```
++ 关于`table-column`和`table-column-group`, 即`col`和`colgroup`标签
+  - `col`和`colgroup`针对表格中的某一列或多列进行处理, 如设置列样式
+  - `colgroup`表示列组, 使用`span`属性指定列组中列的数量
+  ```HTML
+  <!-- 假设表格一共有5列, 前3列背景色是绿色, 后3页背景是黄色 -->
+  <table>
+    <colgroup span="3" style="background-color: green"></colgroup>
+    <colgroup span="2" style="background-color: yellow"></colgroup>
+    <!-- 省略 -->
+  </table>
+  ```
+  - `colgroup`中嵌套使用`col`, 可以对列组中的列进一步设置
+  ```HTML
+  <table>
+    <colgroup span="3" style="background-color: green">
+      <col span="2" style="color: red;">
+      <col span="1" style="color: black;">
+    </colgroup>
+    <!-- 省略 -->
+  </table>
+  ```
+  - `display`设置`table-column`/`table-column-group`的元素不会渲染, 仅作列分组
+  ```HTML
+  <style>
+    .table-column-group {
+      display: table-column-group;
+      background-color: green;
+    }
+    .table-column { display: table-column; }
+  </style>
+  <div class="table">
+    <div class="table-column-group" span="2">
+      <div class="table-column" span="1" style="width: 200px;"></div>
+      <div class="table-column" span="1" style="width: 300px;"></div>
+    </div>
+    <!-- 省略 -->
+  </div>
+  ```
++ 表格对齐: 水平使用`text-align`, 垂直使用`vertical-align`, 不再赘述
++ 表格边框: 使用`border-collapse`定义单元格边框是否折叠, 默认值`seperate`
 
 #### Web字体
 + 使用`@font-face`定义字体, 必须包含字体名称和路径

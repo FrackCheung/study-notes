@@ -50,7 +50,7 @@ div { background-image: url(@/images/background.png); } /** 省略 */
   ```
 + 使用百分比数值: 同时应用到图片和元素上
   - 需要指定水平/垂直方向值, 顺序不能换, 只给一个值, 省略值为`50%`
-  - 以左上角为参照, 计算百分比对应的图片/元素位置, 移动图片使二者重合
+  - 以左上角为参照, 将图片和元素的百分比对应的位置重合
   ```CSS
   /** 图片在元素中垂直水平居中 */
   div { background-position: 50% 50%; }
@@ -58,6 +58,16 @@ div { background-image: url(@/images/background.png); } /** 省略 */
   /** 图片在元素中垂直水平居中 */
   div { background-position: 50%; }
   ```
+***
+**注解1:** 浏览器在处理如`background-position: 20% 30%`的规则时
++ 水平偏移`px`: `(element_width - image_width) * 20%`
++ 垂直偏移`px`: `(element_height - image_height) * 30%`
+
+**注解2:** 分析如下CSS中, 图片的位置
+```CSS
+div { background-position: calc(100% - 10px) calc(100% - 10px); }
+```
+***
 + 使用长度值: 指定图片左上角, 相对于边界左上角的偏移
   - 需要指定水平/垂直方向偏移, 顺序不能换, 只给一个值, 省略的方向会居中
   - 正数值使图片向右/向下偏移, 负数值使图片向左/向上偏移
@@ -73,19 +83,14 @@ div { background-image: url(@/images/background.png); } /** 省略 */
   /** 将图片相对于元素左上角, 向右偏移20px, 垂直方向居中 */
   div { background-position: 20px 50%; }
   ```
-+ 指定偏移的边界: 默认情况下, 是图片左上边界, 相对于元素左上边界偏移
++ 指定偏移边界: 指定关键字和偏移距离
   ```CSS
+  /** 这相当于 left 20px top 40px */
+  div { background-position: 20px 40px; }
+
   /** 指定四个参数, 同时修改图片和元素的边界定义, 再进行偏移 */
   div { background-position: right 40px bottom 20px; }
   ```
-***
-**注解:** 分析如下CSS中, 图片的位置是否一样
-```CSS
-div { width: 800px; height: 200px; }
-div { background-position: calc(100% - 10px) calc(100% - 10px); }
-div { background-position: 790px 190px; }
-```
-***
 
 #### 图片尺寸
 + 图片的尺寸默认使用图片的原始尺寸

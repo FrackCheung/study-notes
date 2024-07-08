@@ -323,6 +323,23 @@ h1::after { content: counter(my_counter); }
 ```CSS
 div { font-family: 'MyFont', sans-serif; } /** 一定要提供回退字体 */
 ```
+***
+**注解:** 如果字体文件中只包含有限字符, 则只有这些字符才会应用字体
++ 使用`unicode-range`, 手动指定字符的支持范围
++ 使用`U+`和`-`, 定义范围, 范围值是字符对应的`unicode`码位
+```CSS
+@font-face {
+  font-family: 'MyFont';
+  src: url(@/font.woff) format('woff');
+  unicode-range: U+26;
+  /** unicode-range: U+00-FF */
+}
+```
++ 使用如下方法找到字符码位
+```JavaScript
+'&'.charCodeAt(0).toString(16); // 26
+```
+***
 
 #### HSL颜色表示
 + 传统的`RGB`和`RGBA`很难根据分量得出颜色, 以及根据颜色写出分量

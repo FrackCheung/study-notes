@@ -235,7 +235,7 @@ div { filter: opacity(0.5) blur(1px); }
 
 #### 混合
 + 混合: 为处于相同位置且重叠的不同元素或者图片指定其混合显示的模式
-+ 背景混合: 使用`background-blend-mode`, 混合背景图, 渐变, 背景色等
++ 背景混合: 使用`background-blend-mode`, 混合元素背景图, 背景渐变, 背景色
   - `background-image`: 可以使用多个图片或渐变, 前者覆盖后者
   ```CSS
   div {
@@ -265,10 +265,10 @@ div { filter: opacity(0.5) blur(1px); }
     background-blend-mode: soft-light;
   }
   ```
-+ 元素混合: 使用`mix-blend-mode`, 混合重叠的元素, 取值和上述一致
++ 元素混合: 使用`mix-blend-mode`, 将元素背景和子元素混合, 取值和上述一致
   ```CSS
-  div.fore { position: absolute; z-index: 2; mix-blend-mode: darken; }
-  div.back { position: absolute; z-index: 1; }
+  div { mix-blend-mode: darken; }
+  /** 也就是说, div的背景, 和其所有子元素的背景, 内容等全部混合在一起 */
   ```
 ***
 **注解1:** 混合默认值是`normal`, 除了`alpha`通道, 其他原样显示, 也称`alpha`混合
@@ -281,7 +281,7 @@ div { background-blend-mode: soft-light, lighten, multiply; }
 ```
 ***
 + 独立混合: 使用`isolation`属性
-  - 使用该属性的元素会单独混合其后代元素和背景, 完成之后再和其他元素混合
+  - 使用该属性的元素不会受到父元素的混合模式影响
   ```CSS
   div { isolation: isolate; }
   ```

@@ -154,7 +154,7 @@ div.flex {
 + `display`: 设置弹性容器
 + `flex-direction`: 设置弹性容器的主轴, 只能用于弹性容器
 + `flex-wrap`: 设置弹性元素是否允许换行, 只能用于弹性容器
-+ `flex-flow`: 一并设置`flex-direction`和`flex-flow`, 只能用于弹性容器
++ `flex-flow`: 一并设置`flex-direction`和`flex-wrap`, 只能用于弹性容器
 ***
 
 #### 弹性元素分布和对齐

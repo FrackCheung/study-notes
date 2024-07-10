@@ -14,7 +14,8 @@
   + [CSS 颜色](./Notes/CSS%20颜色.md)
   + [CSS 动画](./Notes/CSS%20动画.md)
 + CSS 杂项
-  + [CSS 杂项](./Notes/CSS%20杂项.md)
+  + [CSS 选择器](./Notes/CSS%20选择器.md)
+  + [CSS 其他内容](./Notes/CSS%20其他内容.md)
 
 ***
 **注解:** 一知半解不能让你走的更远

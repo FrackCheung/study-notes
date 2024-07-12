@@ -1,30 +1,30 @@
 + [总目录](../readme.md)
 ***
-- [DOM的概念](#dom的概念)
-- [节点的层次结构: DOM树](#节点的层次结构-dom树)
-- [节点的类型](#节点的类型)
-- [节点关系和编辑](#节点关系和编辑)
-- [节点类型: Document(文档)](#节点类型-document文档)
-- [节点类型: Element(元素)](#节点类型-element元素)
-- [节点类型: Text](#节点类型-text)
-- [节点类型: Comment](#节点类型-comment)
-- [节点类型: Attr](#节点类型-attr)
-- [节点类型: DocumentType](#节点类型-documenttype)
-- [节点类型: DocumentFragment](#节点类型-documentfragment)
++ [DOM 的概念](#dom的概念)
++ [节点的层次结构: DOM 树](#节点的层次结构-dom树)
++ [节点的类型](#节点的类型)
++ [节点关系和编辑](#节点关系和编辑)
++ [节点类型: Document(文档)](#节点类型-document文档)
++ [节点类型: Element(元素)](#节点类型-element元素)
++ [节点类型: Text](#节点类型-text)
++ [节点类型: Comment](#节点类型-comment)
++ [节点类型: Attr](#节点类型-attr)
++ [节点类型: DocumentType](#节点类型-documenttype)
++ [节点类型: DocumentFragment](#节点类型-documentfragment)
 ***
 
-#### DOM的概念
-+ DOM是HTML文档的编程接口, DOM规范定义了操作文档的方式
-+ DOM是跨平台, 语言无关的表示
-+ DOM规范的具体实现因浏览器而异, 旧浏览器可能没有实现新方法
-+ DOM的第二重身份: 表示了由节点构成的文档本身
-+ `总结`: DOM是一种规范, 定义了操作文档的方式, 同时DOM也代表了文档本身
+#### DOM 的概念
++ DOM 是 HTML 文档的编程接口, DOM 规范定义了操作文档的方式
++ DOM 是跨平台, 语言无关的表示
++ DOM 规范的具体实现因浏览器而异, 旧浏览器可能没有实现新方法
++ DOM 的第二重身份: 表示了由节点构成的文档本身
++ `总结`: DOM 是一种规范, 定义了操作文档的方式, 同时 DOM 也代表了文档本身
 ***
-**注解**: DOM不止是用在HTML上, 也应用在XML文档上
+**注解**: DOM 不止是用在 HTML 上, 也应用在 XML 文档上
 ***
 
-#### 节点的层次结构: DOM树
-+ HTML表示
+#### 节点的层次结构: DOM 树
++ HTML 表示
   ```html
   <!DOCTYPE html>
   <html lang="en">
@@ -72,7 +72,7 @@
   ```
 
 #### 节点的类型
-+ 上图罗列出了5种节点类型, DOM总共定义了12种节点类型
++ 上图罗列出了 5 种节点类型, DOM 总共定义了 12 种节点类型
 + 部分节点类型在浏览器中并不支持, 本文档只介绍使用的类型
 + 所有的节点类型都继承了`Node`接口, 共享定义在`Node`上的基本属性和方法
   ```JavaScript
@@ -87,7 +87,7 @@
   // ...
   ```
 + 所有的节点都有`nodeType`/`nodeName`/`nodeValue`属性
-+ `Node`上也定义了12个静态常量, 用于节点类型的判断, 使用点语法读取
++ `Node`上也定义了 12 个静态常量, 用于节点类型的判断, 使用点语法读取
 
 |           节点类型            | 类型值 |      描述      |      `nodeName`      | `nodeValue` |
 | :---------------------------: | :----: | :------------: | :------------------: | :---------: |
@@ -111,6 +111,7 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
 + `childNodes`属性: 子节点, `NodeList`类型, 是一个类数组对象
   - 使用中括号或`item()`方法索引子节点, 传参是子节点索引值
   - 使用`length`属性获取子节点数量 (结果包含了所有类型的节点)
+
   ```html
   <ul>
     <!-- 这是注释 -->
@@ -119,16 +120,16 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
     <li>3</li>
   </ul>
   <script>
-    const ul = document.querySelector('ul');
+    const ul = document.querySelector("ul");
     const childs = ul.childNodes;
-    console.log(childs[1].nodeValue === '这是注释'); // true
+    console.log(childs[1].nodeValue === "这是注释"); // true
     console.log(childs.item(0).nodeType === Node.TEXT_NODE); // true
     console.log(childs.length); // 9
 
     const childNodesArray = Array.from(childNodes);
   </script>
   ```
-+ `firstChild`/`lastChild`/`parentNode`属性, 表示第1个/最后1个/父节点
++ `firstChild`/`lastChild`/`parentNode`属性, 表示第 1 个/最后 1 个/父节点
 + `previousSibling`/`nextSibling`属性, 在兄弟节点之间导航
   - `previousSibling`: 当前节点的前一个兄弟节点, 没有则为`null`
   - `nextSibling`: 当前节点的下一个兄弟节点, 没有则为`null`
@@ -146,16 +147,16 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   ul2.appendChild(ul1.lastChild);
   ```
 + `insertBefore`方法, 追加或移动节点到特定位置, 接受两个参数
-  - 参数1: 要追加或移动的节点
-  - 参数2: 参照节点, 添加到该节点的前面, 如果传入`null`, 效果和`appendChild`相同
+  - 参数 1: 要追加或移动的节点
+  - 参数 2: 参照节点, 添加到该节点的前面, 如果传入`null`, 效果和`appendChild`相同
   ```JavaScript
   const ul1 = document.querySelector('.ul1');
   const ul2 = document.querySelector('.ul1');
   ul2.insertBefore(ul1.lastChild, ul2.childNodes[2]);
   ```
 + `replaceChild`方法, 替换节点为新的节点, 接受两个参数
-  - 参数1: 要插入的节点
-  - 参数2: 被替换的节点
+  - 参数 1: 要插入的节点
+  - 参数 2: 被替换的节点
   ```JavaScript
   const ul1 = document.querySelector('.ul1');
   const ul2 = document.querySelector('.ul1');
@@ -163,7 +164,7 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   ```
 + `removeChild`方法, 移除子节点
 + `cloneNode`方法, 复制节点, 接受一个布尔参数
-  - 复制的节点并不会添加到DOM树中, 需要调用上述方法手动添加
+  - 复制的节点并不会添加到 DOM 树中, 需要调用上述方法手动添加
   - 传入`true`, 进行深复制, 会复制当前节点和整个子树, `false`只复制当前节点
   - 节点定义的事件不会被复制
   ```JavaScript
@@ -188,15 +189,16 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   console.log(btn1.isSameNode(btn3)); // false
   console.log(btn1.isEqualNode(btn3)); // true
   ```
+
 ***
-以下将分别介绍每一种节点类型, 以及其对应的属性, 方法, **PS**: 只针对HTML
+以下将分别介绍每一种节点类型, 以及其对应的属性, 方法, **PS**: 只针对 HTML
 ***
 
 #### 节点类型: Document(文档)
 + 类型: `Node.DOCUMENT_NODE`
 + 浏览器将该类型实现为`HTMLDocument`, 其实例为`document`
 + `document`挂载在`window`对象上, 可以直接访问
-+ `document`表示文档的根节点, 一般只有两个子节点: 
++ `document`表示文档的根节点, 一般只有两个子节点:
   - `<!DOCTYPE html>`
   - `<html></html>`
   ```JavaScript
@@ -214,7 +216,7 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
 |      `body`       |      `body`元素的引用       |
 |      `head`       |      `head`元素的引用       |
 |      `title`      |      `title`元素的引用      |
-|       `URL`       |        完整的URL地址        |
+|       `URL`       |       完整的 URL 地址       |
 |     `domain`      |      域名, 不包含端口       |
 |    `referrer`     |            来源             |
 |     `anchors`     | 所有包含`name`属性的`a`元素 |
@@ -248,18 +250,18 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   - 中括号访问不仅可以传入索引, 还可以传入字符串, 这将匹配`name`属性的值
   - 额外提供`namedItem()`方法, 同样匹配`name`属性的值
   ```html
-  <img src="image.png" name="main">
-  <img src="image.png" name="content">
+  <img src="image.png" name="main" />
+  <img src="image.png" name="content" />
   <script>
     // 也可以用document.images
-    const images = document.getElementsByTagName('a');
-    console.log(images[0] === images.namedItem('main')); // true
-    console.log(images[0] === images['main']); // true
+    const images = document.getElementsByTagName("a");
+    console.log(images[0] === images.namedItem("main")); // true
+    console.log(images[0] === images["main"]); // true
   </script>
   ```
 ***
 + 元素定位新方法: `document.querySelector`/`document.querySelectorAll`
-  - 直接传入CSS选择器, CSS支持的选择器都兼容
+  - 直接传入 CSS 选择器, CSS 支持的选择器都兼容
   - 不能选中伪类, 也不能选中伪元素
   - `querySelectorAll`返回的是静态`NodeList`类型, 非实时
   ```JavaScript
@@ -274,17 +276,16 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
 + 文档状态: `document.readyState`, 两个值`loading`/`complete`, 只读
 + 渲染模式: `document.compatMode`, 两个值, 只读
   - `CSS1Compat`: 标准模式
-  - `BackCompat`: 混杂模式()
+  - `BackCompat`: 混杂模式
 + 字符集属性: `document.characterSet`, 可赋值
-+ 计算属性: `document.defaultView.getComputedStyle()`: 两个参数
-  - 参数1: 要获取样式的元素
-  - 参数2: 伪元素, 不涉及伪元素则传`null`
++ 计算样式: `document.defaultView.getComputedStyle()`: 两个参数
+  - 参数 1: 要获取样式的元素
+  - 参数 2: 伪元素, 不涉及伪元素则传`null`
   - 返回值类型是`CSSStyleDeclaration` (和`element.style`的值一样)
-  - 该方法也挂在`window`上, 可以直接使用
   ```JavaScript
   const btn = document.querySelector('button');
   const cStyle = document.defaultView.getComputedStyle(btn, null);
-  const cStyle = getComputedStyle(btn, ':after');
+  const cStyle = document.defaultView.getComputedStyle(btn, ':after');
   ```
 + 操作样式表: `document.styleSheets`, 意义不大, 省略
   ```html
@@ -308,21 +309,21 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
 
 #### 节点类型: Element(元素)
 + 节点类型: `Node.ELEMENT_NODE`
-+ HTML元素都是`HTMLElement`类型, 该类型继承自`Element`, 并扩充了一些属性
++ HTML 元素都是`HTMLElement`类型, 该类型继承自`Element`, 并扩充了一些属性
   - `id`: 元素在文档中唯一的标识符
   - `title`: 描述信息
-  - `className`: class属性, 因和JavaScript重名, 改为`className`, 返回完整的class字符串
+  - `className`: class 属性, 因和 JavaScript 重名, 改为`className`, 返回完整的 class 字符串
   - ...
 + 每一种特定元素, 都有特定类型, 但都是从`HTMLElement`继承而来, 进一步扩充了属性
-  - `HTMLCanvasElement`: canvas元素
-  - `HTMLButtonElement`: button元素
-  - `HTMLInputElement`: input元素
+  - `HTMLCanvasElement`: canvas 元素
+  - `HTMLButtonElement`: button 元素
+  - `HTMLInputElement`: input 元素
   - ...
 + 元素属性操作
   - `getAttribute()`: 获取属性值, 传参为属性名
   - `setAttribute()`: 设置属性, 传参为属性名, 属性值, 有则替换, 无则添加
   - `removeAttribute()`: 移除属性, 传参为属性名
-  - 元素属性也是DOM对象的属性, 可以直接赋值和读取值
+  - 元素属性也是 DOM 对象的属性, 可以直接赋值和读取值
   ```JavaScript
   const btn = document.querySelector('button');
   btn.id = 'login-btn';
@@ -342,8 +343,8 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   </style>
   <button style="width: 200px; height: 50px"></button>
   <script>
-    const btn = document.querySelector('button');
-    console.log(btn.getAttribute('style')); // "width: 200px; height: 50px"
+    const btn = document.querySelector("button");
+    console.log(btn.getAttribute("style")); // "width: 200px; height: 50px"
     console.log(btn.style.width, btn.style.height); // 200px 50px
   </script>
   ```
@@ -363,8 +364,8 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   ```
 ***
 + `attributes`属性: 元素类型的节点特有的属性, 其值为`NamedNodeMap`类型的实时集合
-  - `getNamedItem(name)`: 返回`nodeName`为参数name的节点
-  - `removeNamedItem(name)`: 删除`nodeName`等于name的节点
+  - `getNamedItem(name)`: 返回`nodeName`为参数 name 的节点
+  - `removeNamedItem(name)`: 删除`nodeName`等于 name 的节点
   - `setNamedItem(node)`: 添加`node`节点, `node`必须是`Attr`类型
   - `item(pos)`: 返回索引位置为`pos`的节点
   - 一定要理清楚: 上述描述的节点, 都是属性节点, 类型为`Attr`
@@ -400,7 +401,7 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   - `remove()`: 移除类
   - `toggle()`: 有则删, 没有则添加
 + 元素匹配: `element.matches()`
-  - 参数是CSS选择器, 和`document.querySelector()`差不多
+  - 参数是 CSS 选择器, 和`document.querySelector()`差不多
   - 用于判断元素是否和选择器匹配
   ```JavaScript
   // <button class="login"></button>
@@ -414,16 +415,16 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
   - `dataset`访问自定义属性不需要添加`data-`前缀
   - 自定义属性名中包含`-`连字符, 需要转成小驼峰
   ```JavaScript
-  // <div data-app-name="JSStudy", data-key="123"></div>
+  // <div data-app-name="JSStudy" data-key="123"></div>
   const div = document.querySelector('div');
   console.log(div.dataset.key); // 123
   console.log(div.dataset.appName); // JSStudy
 
   div.dataset.appName = 'JavaScript Study'
   ```
-+ `innerHTML`: 插入内容, 可以是文本, 或者HTML代码, 特殊字符会编码
++ `innerHTML`: 插入内容, 可以是文本, 或者 HTML 代码, 特殊字符会编码
   - 插入文本还可以直接使用`innerText`
-+ `outerHTML`: 读取时, 返回调用元素及其后代元素的HTML字符串, 赋值时, 直接替换调用元素
++ `outerHTML`: 读取时, 返回调用元素及其后代元素的 HTML 字符串, 赋值时, 直接替换调用元素
   - 替换为文本还可以直接使用`outerText`
   ```html
   <ul>
@@ -432,15 +433,15 @@ console.log(div.nodeType === Node.ELEMENT_NODE); // true
     <li>1</li>
   </ul>
   <script>
-    const ul = document.querySelector('ul');
+    const ul = document.querySelector("ul");
     console.log(ul.outerHTML);
 
-    ul.outerHTML = '<span>Hello</span>';
+    ul.outerHTML = "<span>Hello</span>";
   </script>
   ```
 + 特定位置插入: `insertAdjacentHTML`/`insertAdjacentText`
-  - 参数1: 表明插入位置, 见下表
-  - 参数2: 要插入的HTML片段或者文本
+  - 参数 1: 表明插入位置, 见下表
+  - 参数 2: 要插入的 HTML 片段或者文本
 
 |     参数      |                     位置描述                      |
 | :-----------: | :-----------------------------------------------: |
@@ -457,7 +458,7 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
 ***
 **提示**: 将`begin`和`end`理解成当前元素的开始标签和闭合标签
 ***
-+ 内容滚动: `scrollIntoView`方法, 将元素滚动到视口中, 传参有三种形式
++ 元素滚动: `scrollIntoView`方法, 将元素滚动到视口中, 传参有三种形式
   - 布尔值: `true`表示滚动后元素顶部与视口顶部对齐, `false`表示元素底部和视口底部对齐
   - 对象: 更加丰富的指定滚动的效果, 其类型为`scrollIntoViewOptions`
   - 不传任何参数表示默认为`true`
@@ -474,6 +475,14 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
     inline: 'start'
   });
   ```
++ 内容滚动: `scrollTo`方法, 将元素内的内容滚动区域滚动到指定的位置
+  ```JavaScript
+  const container = document.querySelector('div');
+  container.scrollTo({
+    left: container.scrollLeft + 200, // 向左滚动200像素
+    behavior: 'smooth'
+  });
+  ```
 + 后代判断: `contains`, 判断元素是否为调用元素的后代
   ```JavaScript
   const ul = document.querySelector('ul');
@@ -481,28 +490,28 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
   console.log(ul.contains(li));
   ```
 + 元素尺寸, 包括偏移尺寸, 客户端尺寸和滚动尺寸
-  - CSS中定义的`width`和`height`指的是内容宽高, 不包括内边距, 边框和外边距
-  - 关于尺寸以及盒模型, 在CSS的培训中会专门讲述
+  - CSS 中定义的`width`和`height`指的是内容宽高, 不包括内边距, 边框和外边距
+  - 关于尺寸以及盒模型, 在 CSS 的培训中会专门讲述
 
-|          属性          |               描述                |
-| :--------------------: | :-------------------------------: |
-| `element.offsetWidth`  |     左边框外侧 --> 右边框外侧     |
-| `element.offsetHeight` |     上边框外侧 --> 下边框外侧     |
-|  `element.offsetLeft`  | 左边框外侧 --> 包含元素左边框内侧 |
-|  `element.offsetTop`   | 上边框外侧 --> 包含元素上边框内侧 |
-| `element.clientWidth`  |   左内边距外侧 --> 右内边距外侧   |
-| `element.clientHeight` |   上内边距外侧 --> 下内边距外侧   |
-|  `element.clientLeft`  |            左边框宽度             |
-|  `element.clientTop`   |            上边框宽度             |
-| `element.scrollWidth`  |   左内边距外侧 --> 右内边距外侧   |
-| `element.scrollHeight` |   上内边距外侧 --> 下内边距外侧   |
-|  `element.scrollLeft`  |     内容区域左侧隐藏的像素数      |
-|  `element.scrollTop`   |      内容区顶部隐藏的像素数       |
+|          属性          |                     描述                     |
+| :--------------------: | :------------------------------------------: |
+| `element.offsetWidth`  |       布局宽度, 包含边框, 内边距和内容       |
+| `element.offsetHeight` |       布局高度, 包含边框, 内边距和内容       |
+|  `element.offsetLeft`  |      元素左侧到`offsetParent`左侧的距离      |
+|  `element.offsetTop`   |      元素顶部到`offsetParent`顶部的距离      |
+| `element.clientWidth`  |         客户端宽度, 包含内边距和内容         |
+| `element.clientHeight` |         客户端高度, 包含内边距和内容         |
+|  `element.clientLeft`  |                  左边框宽度                  |
+|  `element.clientTop`   |                  上边框宽度                  |
+| `element.scrollWidth`  | 内容区域宽度, 包含`overflow`隐藏部分和内边距 |
+| `element.scrollHeight` | 内容区域高度, 包含`overflow`隐藏部分和内边距 |
+|  `element.scrollLeft`  |           内容区域左侧隐藏的像素数           |
+|  `element.scrollTop`   |           内容区域顶部隐藏的像素数           |
 
 ***
-**注解1**: 元素内容的滚动指的是元素设置了定宽定高, 但是内容超过了宽高, 并且设置了`overflow`属性为滚动的情况  
-**注解2**: 滚动条不会出现在边框外  
-**注解3**: 滚动条的出现会导致`scrollWidth`和`scrollHeight`减少`17`  
+**注解 1**: `offsetParent`指离元素最近的祖先定位元素, 没有则为`body`
+**注解 2**: 滚动条不会出现在边框外  
+**注解 3**: 滚动条的出现会导致`scrollWidth`和`scrollHeight`减少`17`
 ```html
 <style>
   .container {
@@ -510,7 +519,7 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
     height: 200px;
     padding: 100px;
     border: 1px solid red;
-    overflow: auto
+    overflow: auto;
   }
 </style>
 <div class="container">
@@ -519,13 +528,15 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
 <!-- scrollWidth是383, 即400 - 17 -->
 ```
 ***
-+ 确定元素的尺寸: `element.getBoundingClientRect()`
-  - 返回`DOMRect`类型的对象, 包含6个属性
++ 确定元素的尺寸和相对于视口的位置: `element.getBoundingClientRect()`
+  - 返回`DOMRect`类型的对象, 包含 6 个属性
   - `left`/`right`/`top`/`bottom`/`width`/`height`
   - `left`: 元素左边框外侧距离视口左侧的像素数
   - `right`: 元素右边框外侧距离视口左侧的像素数
   - `top`: 元素上边框外侧距离视口顶部的像素数
   - `bottom`: 元素下边框外侧距离视口顶部的像素数
+  - `width`: 元素宽度, 包含内边距, 边框, 和内容
+  - `height`: 元素高度, 包含内边距, 边框, 和内容
 
 #### 节点类型: Text
 + 节点类型: `Node.TEXT_NODE`
@@ -581,7 +592,7 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
   console.log(btn.childNodes.length); // 1
   console.log(btn.childNodes[0].data); // MyButton
   ```
-+ HTML解析加载后, 一个元素中的文本只会被解析为一个节点
++ HTML 解析加载后, 一个元素中的文本只会被解析为一个节点
 + 其他赋值方法: `innerHTML`/`element.textContent = text`
 
 #### 节点类型: Comment
@@ -616,12 +627,11 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
   - `element.setAttribute()`
   - `element.removeAttribute()`
 
-
 #### 节点类型: DocumentType
 + 节点类型: `Node.DOCUMENT_TYPE_NODE`
 + 该节点保存了文档类型信息
 + 通过`document.doctype`可访问文档类型信息, 其类型为`DocumentType`
-+ `DocumentType`有三个属性, HTML只需要关心其`name`属性
++ `DocumentType`有三个属性, HTML 只需要关心其`name`属性
   ```html
   <!DOCTYPE html>
   <html>
@@ -642,9 +652,9 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
 + 节点类型: `Node.DOCUMENT_FRAGMENT_NODE`
 + 文档片段的解释:
   - 文档片段可以理解为一个仓库, 可以向里面尽情的添加节点
-  - 文档片段的内容不会被添加到DOM树, 除非显示的手动添加
-  - 将DOM中现有的节点添加到文档片段中, 则该节点会从DOM树中移除
-+ 主要用途: 优化DOM创建的性能
+  - 文档片段的内容不会被添加到 DOM 树, 除非显示的手动添加
+  - 将 DOM 中现有的节点添加到文档片段中, 则该节点会从 DOM 树中移除
++ 主要用途: 优化 DOM 创建的性能
   ```JavaScript
   // <ul></ul>
   const ul = document.querySelector('ul');

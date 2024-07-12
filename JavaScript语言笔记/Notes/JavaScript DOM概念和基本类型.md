@@ -509,8 +509,17 @@ button.insertAdjacentHTML('beforebegin', '<button>取消</button>');
 |  `element.scrollTop`   |           内容区域顶部隐藏的像素数           |
 
 ***
-**注解 1**: `offsetParent`指包含该元素的定位元素, 或`table`, `td`, `th`, `body`  
-**注解 2**: 滚动条不会出现在边框外  
+**注解 1**: `offsetParent`指包含该元素的定位元素, 或`table`, `td`, `th`, `body`
+**注解 2**: 滚动内容, 不会改变子元素的`offsetLeft`或`offsetTop`
+```HTML
+<div style="width: 200px; position: relative; overflow: auto">
+  <div style="width: 1000px;" class="content"></div>
+</div>
+<script>
+  const content = document.querySelector('.content');
+  console.log(content.offsetLeft); // 0
+</script>
+```
 **注解 3**: 滚动条的出现会导致`scrollWidth`和`scrollHeight`减少`17`
 ```html
 <style>

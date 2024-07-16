@@ -240,7 +240,7 @@ div { width: calc(100%-200px); } /** 不允许, 必须有空格 */
     font-size: 16px;
     line-height: 1.2em; /** 直接相对于:root元素计算出行高值为19.2px */
   }
-  div { nfont-size: 2rem; }
+  div { font-size: 2rem; }
   /** div的font-size为32px */
   /** div继承的行高为19.2px, 行高小于字号, 文字会重叠 */
   ```

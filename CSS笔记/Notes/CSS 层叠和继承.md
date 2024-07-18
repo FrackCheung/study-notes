@@ -141,8 +141,7 @@ a:active { color: blue; }
 a:hover { color: orange; }
 a:visited { color: green; }
 a:link { color: red; }
-
-/** :active, :focus, :hover, :visited全部失效 */
+/** :active, :focus, :hover三个样式失效, :visited也可能会失效 */
 ```
 + 解决方案: 静态样式在前, 交互样式在后, 且都要遵循实际发生的顺序
 ```CSS

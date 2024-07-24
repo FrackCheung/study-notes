@@ -57,6 +57,7 @@
     <span>Hello, World</span>
     <img src="index.png"> <!-- img和span水平居中对齐 -->
   </div>
+    <!-- 注意: 这里的居中对齐是指基线对齐, 即img中部和span的文本基线对齐 -->
   ```
   - 父容器设置`display: table-cell`后, 此方法能让子元素垂直居中
   ```CSS

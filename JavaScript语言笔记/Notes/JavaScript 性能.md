@@ -128,9 +128,7 @@
   */
   const addResourcesToCache = async () => {
     const cache = await caches.open(cacheId);
-    await cache.addAll([
-      '/1.png'
-    ]);
+    await cache.addAll(['/1.png']);
     await cache.put('/text', new Response('Hello, Service Worker'));
   }
 
@@ -138,7 +136,7 @@
   * 监听ServiceWorker的安装时间, 并在此阶段添加资源
   */
   self.addEventListener('install', event => {
-      event.waitUntil(addResourcesToCache())
+    event.waitUntil(addResourcesToCache())
   });
 
   /**

@@ -149,3 +149,8 @@
     event.respondWith(response)
   });
   ```
+***
+**注解1:** `ServiceWorker`只能运行在HTTPS页面中
+
+**注解2:** `ServiceWorker`也可用于资源预加载, 进而优化网络性能
+***

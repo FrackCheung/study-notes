@@ -510,7 +510,7 @@
     },
   };
   ```
-+ 代码压缩, 去除不必要的代码
++ 代码压缩, 去除不必要的代码 (尤其是重复的CSS)
   ```JavaScript
   // webpack.config.js
   const TerserPlugin = require("terser-webpack-plugin");
